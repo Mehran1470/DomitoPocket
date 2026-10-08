@@ -75,15 +75,15 @@ function renderGames() {
     card.innerHTML = `
       <div class="game-thumb" style="background:linear-gradient(160deg,rgba(79,124,255,.3),rgba(155,92,255,.2));">
         ${g.icon}
-        <span class="solo-badge">${g.multi ? 'چندنفره' : 'تک‌نفره'}</span>
+        <span class="solo-badge">${g.ready ? 'تک‌نفره' : 'به‌زودی'}</span>
       </div>
       <div class="game-body">
         <div class="name">${g.name}</div>
         <div class="meta">${g.desc}</div>
       </div>`;
     card.addEventListener('click', () => {
-      if (g.multi) {
-        $('homeStatus').textContent = 'این بازی چندنفره است؛ اول یک اتاق بساز یا وارد اتاق شو.';
+      if (!g.ready) {
+        $('homeStatus').textContent = 'این بازی هنوز اضافه نشده.';
         return;
       }
       location.href = `games/${g.id}.html?solo=1`;
