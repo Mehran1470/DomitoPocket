@@ -1,0 +1,2616 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>پرش از سکو | دومیتو جیبی</title>
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+}
+
+html,
+body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#0f172a;
+}
+
+body{
+  font-family:
+    system-ui,
+    Tahoma,
+    sans-serif;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  min-height:100dvh;
+
+  color:#e2e8f0;
+}
+
+h1{
+  font-size:1.3rem;
+  margin-bottom:8px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #38bdf8,
+      #a78bfa
+    );
+
+  -webkit-background-clip:text;
+  background-clip:text;
+
+  color:transparent;
+
+  font-weight:800;
+}
+
+.wrap{
+  position:relative;
+
+  width:min(94vw,380px);
+
+  aspect-ratio:9 / 16;
+
+  border-radius:18px;
+
+  overflow:hidden;
+
+  border:
+    2px solid
+    rgba(56,189,248,.35);
+
+  box-shadow:
+    0 0 40px
+    rgba(56,189,248,.15);
+
+  background:#0f172a;
+}
+
+canvas{
+  display:block;
+
+  width:100%;
+  height:100%;
+
+  touch-action:none;
+}
+
+.hud{
+  position:absolute;
+
+  top:12px;
+  left:0;
+  right:0;
+
+  display:flex;
+  justify-content:space-between;
+
+  padding:0 14px;
+
+  pointer-events:none;
+
+  z-index:5;
+}
+
+.score{
+  font-size:1.1rem;
+
+  font-weight:800;
+
+  color:#38bdf8;
+
+  text-shadow:
+    0 0 10px
+    rgba(56,189,248,.5);
+}
+
+.best{
+  font-size:.9rem;
+
+  color:#94a3b8;
+}
+
+.mode{
+  position:absolute;
+
+  top:43px;
+  right:14px;
+
+  z-index:5;
+
+  font-size:.68rem;
+
+  color:
+    rgba(255,255,255,.7);
+
+  background:
+    rgba(255,255,255,.07);
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  padding:
+    4px 8px;
+
+  border-radius:10px;
+
+  pointer-events:none;
+}
+
+.user{
+  position:absolute;
+
+  top:43px;
+  left:14px;
+
+  z-index:5;
+
+  color:
+    rgba(255,255,255,.55);
+
+  font-size:.68rem;
+
+  pointer-events:none;
+}
+
+.overlay{
+  position:absolute;
+
+  inset:0;
+
+  background:
+    rgba(15,23,42,.93);
+
+  display:none;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:12px;
+
+  z-index:10;
+
+  text-align:center;
+
+  padding:20px;
+
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+}
+
+.overlay.show{
+  display:flex;
+}
+
+.overlay h2{
+  font-size:1.5rem;
+  font-weight:800;
+}
+
+.overlay p{
+  color:#94a3b8;
+
+  font-size:.88rem;
+
+  line-height:1.8;
+}
+
+.btn{
+  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      #38bdf8,
+      #a78bfa
+    );
+
+  color:#fff;
+
+  font-size:1.05rem;
+
+  font-weight:700;
+
+  padding:
+    12px 32px;
+
+  border-radius:14px;
+
+  cursor:pointer;
+
+  box-shadow:
+    0 6px 20px
+    rgba(56,189,248,.3);
+}
+
+.btn:active{
+  transform:scale(.96);
+}
+
+.mute{
+  position:absolute;
+
+  top:10px;
+  left:10px;
+
+  z-index:15;
+
+  width:36px;
+  height:36px;
+
+  border-radius:50%;
+
+  border:none;
+
+  background:
+    rgba(255,255,255,.1);
+
+  color:#e2e8f0;
+
+  font-size:16px;
+
+  cursor:pointer;
+}
+
+.hint{
+  margin-top:12px;
+
+  font-size:.78rem;
+
+  color:#64748b;
+
+  text-align:center;
+
+  max-width:320px;
+}
+
+.saving{
+  font-size:.76rem !important;
+
+  color:#38bdf8 !important;
+}
+
+@media (max-height:700px){
+
+  h1{
+    font-size:1.05rem;
+    margin-bottom:4px;
+  }
+
+  .hint{
+    display:none;
+  }
+
+  .wrap{
+    width:min(92vw,340px);
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<h1>
+  🪂 پرش از سکو
+</h1>
+
+
+<div
+  class="wrap"
+  id="wrap"
+>
+
+<canvas id="c"></canvas>
+
+
+<button
+  class="mute"
+  id="muteBtn"
+  type="button"
+>
+  🔊
+</button>
+
+
+<div class="hud">
+
+  <div class="score">
+    امتیاز:
+    <span id="score">0</span>
+  </div>
+
+  <div class="best">
+    بهترین:
+    <span id="best">0</span>
+  </div>
+
+</div>
+
+
+<div
+  class="mode"
+  id="modeLabel"
+>
+  🎮 تک‌نفره
+</div>
+
+
+<div
+  class="user"
+  id="userLabel"
+>
+  در حال ورود...
+</div>
+
+
+<!-- شروع -->
+
+<div
+  class="overlay show"
+  id="startOverlay"
+>
+
+  <h2
+    id="startTitle"
+    style="color:#38bdf8"
+  >
+    پرش از سکو
+  </h2>
+
+  <p id="startText">
+
+    انگشتت رو چپ و راست بکش<br>
+
+    روی سکوها فرود بیا و تا جایی که می‌تونی بالا برو<br>
+
+    آبی = عادی • بنفش = متحرک<br>
+
+    قرمز = شکستنی • سبز = فنری
+
+  </p>
+
+  <button
+    class="btn"
+    id="startBtn"
+    type="button"
+  >
+    شروع
+  </button>
+
+</div>
+
+
+<!-- پایان -->
+
+<div
+  class="overlay"
+  id="endOverlay"
+>
+
+  <h2 id="endTitle">
+    😅 افتادی!
+  </h2>
+
+  <p>
+    امتیاز:
+    <span id="finalScore">
+      0
+    </span>
+  </p>
+
+  <p
+    id="saveMessage"
+    class="saving"
+  >
+    رکوردت ذخیره شد
+  </p>
+
+  <button
+    class="btn"
+    id="restartBtn"
+    type="button"
+  >
+    دوباره
+  </button>
+
+</div>
+
+
+</div>
+
+
+<p class="hint">
+
+  لمس و کشیدن = حرکت
+
+  &nbsp;•&nbsp;
+
+  کیبورد: ← →
+
+</p>
+
+
+<script type="module">
+
+/* =========================================================
+   دومیتو جیبی
+========================================================= */
+
+import {
+  getSavedName
+} from "../js/store.js";
+
+
+/* =========================================================
+   عناصر
+========================================================= */
+
+const canvas =
+  document.getElementById("c");
+
+const ctx =
+  canvas.getContext("2d");
+
+const wrap =
+  document.getElementById("wrap");
+
+const scoreEl =
+  document.getElementById("score");
+
+const bestEl =
+  document.getElementById("best");
+
+const finalScoreEl =
+  document.getElementById("finalScore");
+
+const userLabel =
+  document.getElementById("userLabel");
+
+const modeLabel =
+  document.getElementById("modeLabel");
+
+const startOverlay =
+  document.getElementById("startOverlay");
+
+const endOverlay =
+  document.getElementById("endOverlay");
+
+const endTitle =
+  document.getElementById("endTitle");
+
+const saveMessage =
+  document.getElementById("saveMessage");
+
+const startBtn =
+  document.getElementById("startBtn");
+
+const restartBtn =
+  document.getElementById("restartBtn");
+
+const muteBtn =
+  document.getElementById("muteBtn");
+
+
+/* =========================================================
+   Canvas
+========================================================= */
+
+let W = 360;
+let H = 640;
+let dpr = 1;
+
+
+/* =========================================================
+   بازی
+========================================================= */
+
+let player;
+
+let platforms;
+
+let particles;
+
+let stars;
+
+let score = 0;
+
+let best =
+  Number(
+    localStorage.getItem(
+      "jump_best"
+    )
+  ) || 0;
+
+let running = false;
+
+let over = false;
+
+let camY = 0;
+
+let moveX = 0;
+
+let lastTs = null;
+
+let muted = false;
+
+let actx = null;
+
+
+/* =========================================================
+   نام بازیکن
+========================================================= */
+
+let currentUserName =
+  "";
+
+
+/* =========================================================
+   نمایش اولیه
+========================================================= */
+
+bestEl.textContent =
+  best;
+
+
+/* =========================================================
+   نام بازیکن
+========================================================= */
+
+function initPlayerName(){
+
+  try{
+
+    currentUserName =
+      getSavedName() || "";
+
+  }
+
+  catch(error){
+
+    currentUserName =
+      "";
+
+  }
+
+
+  if(currentUserName){
+
+    userLabel.textContent =
+      `👤 ${currentUserName}`;
+
+  }
+
+  else{
+
+    userLabel.textContent =
+      "👤 بازیکن";
+
+  }
+
+}
+
+
+/* =========================================================
+   Canvas resize
+========================================================= */
+
+function resize(){
+
+  const r =
+    wrap.getBoundingClientRect();
+
+
+  dpr =
+    Math.min(
+      devicePixelRatio || 1,
+      2
+    );
+
+
+  canvas.width =
+    Math.round(
+      r.width * dpr
+    );
+
+  canvas.height =
+    Math.round(
+      r.height * dpr
+    );
+
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+
+
+  W = r.width;
+
+  H = r.height;
+
+}
+
+
+/* =========================================================
+   Seed
+========================================================= */
+
+function hashString(str){
+
+  let h =
+    2166136261;
+
+
+  for(
+    let i = 0;
+    i < str.length;
+    i++
+  ){
+
+    h ^=
+      str.charCodeAt(i);
+
+    h =
+      Math.imul(
+        h,
+        16777619
+      );
+
+  }
+
+
+  return h >>> 0;
+
+}
+
+
+function createRng(seed){
+
+  let state =
+    seed >>> 0;
+
+
+  return function(){
+
+    state =
+      (
+        Math.imul(
+          1664525,
+          state
+        ) +
+        1013904223
+      ) >>> 0;
+
+
+    return (
+      state /
+      4294967296
+    );
+
+  };
+
+}
+
+
+/* =========================================================
+   ستاره‌ها
+========================================================= */
+
+function makeStars(){
+
+  stars = [];
+
+
+  const rng =
+    createRng(
+      hashString(
+        "solo-stars"
+      )
+    );
+
+
+  for(
+    let i = 0;
+    i < 50;
+    i++
+  ){
+
+    stars.push({
+
+      x:
+        rng() * W,
+
+      y:
+        rng() *
+        H *
+        4,
+
+      r:
+        rng() *
+        1.4 +
+        .3,
+
+      a:
+        rng() *
+        .5 +
+        .2
+
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   ساخت سکو
+========================================================= */
+
+function createPlatform(
+  y,
+  index,
+  rng
+){
+
+  const rnd =
+    rng();
+
+
+  let type =
+    "normal";
+
+
+  const difficulty =
+    Math.min(
+      1,
+      Math.max(
+        0,
+        index / 80
+      )
+    );
+
+
+  if(
+    rnd <
+    .08 +
+    difficulty * .04
+  ){
+
+    type =
+      "spring";
+
+  }
+
+  else if(
+    rnd <
+    .19 +
+    difficulty * .10
+  ){
+
+    type =
+      "move";
+
+  }
+
+  else if(
+    rnd <
+    .29 +
+    difficulty * .10
+  ){
+
+    type =
+      "break";
+
+  }
+
+
+  const width =
+    Math.max(
+      50,
+      82 -
+      difficulty * 20 +
+      rng() * 24
+    );
+
+
+  return {
+
+    x:
+      12 +
+      rng() *
+      Math.max(
+        10,
+        W -
+        width -
+        24
+      ),
+
+    y,
+
+    w:
+      width,
+
+    h:
+      13,
+
+    type,
+
+    dir:
+      rng() < .5
+        ? 1
+        : -1,
+
+    speed:
+      40 +
+      rng() * 45 +
+      difficulty * 45,
+
+    broken:
+      false,
+
+    index
+
+  };
+
+}
+
+
+/* =========================================================
+   Reset
+========================================================= */
+
+function reset(){
+
+  const seed =
+    Math.floor(
+      Math.random() *
+      4294967295
+    );
+
+
+  const rng =
+    createRng(seed);
+
+
+  player = {
+
+    x:
+      W / 2,
+
+    y:
+      H * .72,
+
+    vx:
+      0,
+
+    vy:
+      0,
+
+    r:
+      13
+
+  };
+
+
+  platforms = [];
+
+
+  platforms.push({
+
+    x:
+      W / 2 - 45,
+
+    y:
+      H - 50,
+
+    w:
+      90,
+
+    h:
+      14,
+
+    type:
+      "normal",
+
+    dir:
+      0,
+
+    speed:
+      0,
+
+    broken:
+      false,
+
+    index:
+      0
+
+  });
+
+
+  let y =
+    H - 125;
+
+
+  for(
+    let i = 1;
+    i < 18;
+    i++
+  ){
+
+    y -=
+      48 +
+      rng() *
+      25;
+
+
+    platforms.push(
+      createPlatform(
+        y,
+        i,
+        rng
+      )
+    );
+
+  }
+
+
+  particles = [];
+
+  score = 0;
+
+  camY = 0;
+
+  over = false;
+
+  moveX = 0;
+
+  lastTs = null;
+
+
+  scoreEl.textContent =
+    "0";
+
+
+  makeStars();
+
+}
+
+
+/* =========================================================
+   ذرات
+========================================================= */
+
+function burst(
+  x,
+  y,
+  color,
+  n
+){
+
+  n =
+    n || 10;
+
+
+  for(
+    let i = 0;
+    i < n;
+    i++
+  ){
+
+    const a =
+      Math.random() *
+      Math.PI *
+      2;
+
+
+    const s =
+      50 +
+      Math.random() *
+      90;
+
+
+    particles.push({
+
+      x,
+
+      y,
+
+      vx:
+        Math.cos(a) * s,
+
+      vy:
+        Math.sin(a) * s,
+
+      life:
+        1,
+
+      color
+
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   صدا
+========================================================= */
+
+function initAudio(){
+
+  try{
+
+    if(!actx){
+
+      actx =
+        new(
+          window.AudioContext ||
+          window.webkitAudioContext
+        )();
+
+    }
+
+
+    if(
+      actx.state ===
+      "suspended"
+    ){
+
+      actx.resume();
+
+    }
+
+  }
+
+  catch(e){}
+
+}
+
+
+function beep(
+  freq,
+  dur,
+  type,
+  vol
+){
+
+  if(
+    muted ||
+    !actx
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    const o =
+      actx.createOscillator();
+
+    const g =
+      actx.createGain();
+
+
+    o.type =
+      type || "square";
+
+    o.frequency.value =
+      freq;
+
+
+    g.gain.setValueAtTime(
+      vol || .06,
+      actx.currentTime
+    );
+
+
+    g.gain.exponentialRampToValueAtTime(
+      .001,
+      actx.currentTime + dur
+    );
+
+
+    o.connect(g);
+
+    g.connect(
+      actx.destination
+    );
+
+
+    o.start();
+
+    o.stop(
+      actx.currentTime + dur
+    );
+
+  }
+
+  catch(e){}
+
+}
+
+
+function sfxJump(){
+
+  beep(
+    380,
+    .07,
+    "square",
+    .05
+  );
+
+}
+
+
+function sfxSpring(){
+
+  beep(
+    520,
+    .1,
+    "square",
+    .06
+  );
+
+
+  setTimeout(
+    () =>
+      beep(
+        700,
+        .08,
+        "square",
+        .05
+      ),
+    60
+  );
+
+}
+
+
+function sfxBreak(){
+
+  beep(
+    180,
+    .15,
+    "sawtooth",
+    .07
+  );
+
+}
+
+
+function sfxDie(){
+
+  beep(
+    200,
+    .2,
+    "sawtooth",
+    .08
+  );
+
+
+  setTimeout(
+    () =>
+      beep(
+        120,
+        .3,
+        "sawtooth",
+        .07
+      ),
+    150
+  );
+
+}
+
+
+function sfxRecord(){
+
+  beep(523,.1);
+
+  setTimeout(
+    () => beep(659,.1),
+    100
+  );
+
+  setTimeout(
+    () => beep(784,.15),
+    200
+  );
+
+}
+
+
+/* =========================================================
+   Tick
+========================================================= */
+
+function tick(dt){
+
+  if(over){
+
+    return;
+
+  }
+
+
+  const difficulty =
+    Math.min(
+      1,
+      score / 1500
+    );
+
+
+  const maxSpeed =
+    280 +
+    difficulty * 80;
+
+
+  const targetVx =
+    moveX * maxSpeed;
+
+
+  player.vx +=
+    (
+      targetVx -
+      player.vx
+    ) *
+    Math.min(
+      1,
+      12 * dt
+    );
+
+
+  player.x +=
+    player.vx * dt;
+
+
+  if(
+    player.x <
+    -player.r
+  ){
+
+    player.x =
+      W + player.r;
+
+  }
+
+
+  if(
+    player.x >
+    W + player.r
+  ){
+
+    player.x =
+      -player.r;
+
+  }
+
+
+  const gravity =
+    1550 +
+    difficulty * 250;
+
+
+  player.vy +=
+    gravity * dt;
+
+
+  player.y +=
+    player.vy * dt;
+
+
+  platforms.forEach(
+    p => {
+
+      if(
+        p.type === "move" &&
+        !p.broken
+      ){
+
+        p.x +=
+          p.dir *
+          p.speed *
+          dt;
+
+
+        if(
+          p.x < 8
+        ){
+
+          p.x = 8;
+
+          p.dir = 1;
+
+        }
+
+
+        if(
+          p.x + p.w >
+          W - 8
+        ){
+
+          p.x =
+            W - 8 - p.w;
+
+          p.dir = -1;
+
+        }
+
+      }
+
+    }
+  );
+
+
+  /* برخورد با سکو */
+
+  if(
+    player.vy > 0
+  ){
+
+    for(
+      let i = 0;
+      i < platforms.length;
+      i++
+    ){
+
+      const p =
+        platforms[i];
+
+
+      if(
+        p.broken
+      ){
+
+        continue;
+
+      }
+
+
+      const px =
+        player.x;
+
+      const py =
+        player.y;
+
+      const pr =
+        player.r;
+
+
+      const hitX =
+        px +
+        pr * .7 >
+        p.x &&
+        px -
+        pr * .7 <
+        p.x + p.w;
+
+
+      const hitY =
+        py + pr >= p.y &&
+        py + pr <=
+          p.y +
+          p.h +
+          10;
+
+
+      const comingFromAbove =
+        py <
+        p.y + 8;
+
+
+      if(
+        hitX &&
+        hitY &&
+        comingFromAbove
+      ){
+
+        player.y =
+          p.y - pr;
+
+
+        if(
+          p.type ===
+          "spring"
+        ){
+
+          player.vy =
+            -920 -
+            difficulty * 80;
+
+
+          sfxSpring();
+
+
+          burst(
+            px,
+            py + pr,
+            "#4ade80",
+            14
+          );
+
+        }
+
+        else{
+
+          player.vy =
+            -640 -
+            difficulty * 50;
+
+
+          sfxJump();
+
+
+          burst(
+            px,
+            py + pr,
+            "#38bdf8",
+            8
+          );
+
+        }
+
+
+        if(
+          p.type ===
+          "break"
+        ){
+
+          p.broken =
+            true;
+
+
+          sfxBreak();
+
+
+          burst(
+            p.x +
+              p.w / 2,
+            p.y,
+            "#f87171",
+            12
+          );
+
+        }
+
+
+        break;
+
+      }
+
+    }
+
+  }
+
+
+  /* دوربین */
+
+  const targetCam =
+    player.y -
+    H * .52;
+
+
+  if(
+    targetCam <
+    camY
+  ){
+
+    camY +=
+      (
+        targetCam -
+        camY
+      ) *
+      Math.min(
+        1,
+        8 * dt
+      );
+
+  }
+
+
+  /* امتیاز */
+
+  const newScore =
+    Math.max(
+      0,
+      Math.floor(
+        -camY / 8
+      )
+    );
+
+
+  if(
+    newScore >
+    score
+  ){
+
+    score =
+      newScore;
+
+
+    scoreEl.textContent =
+      score;
+
+  }
+
+
+  /* حذف سکوهای پایین */
+
+  platforms =
+    platforms.filter(
+      p =>
+        p.y <
+        camY +
+        H +
+        100
+    );
+
+
+  let highestY =
+    platforms.length
+      ? Math.min(
+          ...platforms.map(
+            p => p.y
+          )
+        )
+      : camY;
+
+
+  /* ساخت سکوهای جدید */
+
+  while(
+    platforms.length <
+    18
+  ){
+
+    const nextIndex =
+      Math.max(
+        ...platforms.map(
+          p =>
+            Number(
+              p.index || 0
+            )
+        )
+      ) + 1;
+
+
+    const seed =
+      Math.floor(
+        Math.random() *
+        4294967295
+      );
+
+
+    const rng =
+      createRng(seed);
+
+
+    highestY -=
+      48 +
+      rng() *
+      25;
+
+
+    platforms.push(
+      createPlatform(
+        highestY,
+        nextIndex,
+        rng
+      )
+    );
+
+  }
+
+
+  /* سقوط */
+
+  if(
+    player.y >
+    camY +
+    H +
+    60
+  ){
+
+    gameOver();
+
+  }
+
+
+  /* ذرات */
+
+  particles.forEach(
+    p => {
+
+      p.x +=
+        p.vx * dt;
+
+      p.y +=
+        p.vy * dt;
+
+      p.vx *=
+        .92;
+
+      p.vy *=
+        .92;
+
+      p.life -=
+        dt * 1.7;
+
+    }
+  );
+
+
+  particles =
+    particles.filter(
+      p =>
+        p.life > 0
+    );
+
+}
+
+
+/* =========================================================
+   پایان بازی
+========================================================= */
+
+function gameOver(){
+
+  if(over){
+
+    return;
+
+  }
+
+
+  over = true;
+
+  running = false;
+
+
+  sfxDie();
+
+
+  let newRecord =
+    false;
+
+
+  if(
+    score > best
+  ){
+
+    best =
+      score;
+
+
+    localStorage.setItem(
+      "jump_best",
+      best
+    );
+
+
+    bestEl.textContent =
+      best;
+
+
+    newRecord = true;
+
+  }
+
+
+  if(newRecord){
+
+    endTitle.textContent =
+      "🏆 رکورد جدید!";
+
+
+    sfxRecord();
+
+  }
+
+  else{
+
+    endTitle.textContent =
+      "😅 افتادی!";
+
+  }
+
+
+  finalScoreEl.textContent =
+    score;
+
+
+  if(newRecord){
+
+    saveMessage.textContent =
+      "✨ رکورد جدیدت ذخیره شد";
+
+  }
+
+  else{
+
+    saveMessage.textContent =
+      "💾 نتیجه در گوشی ذخیره شد";
+
+  }
+
+
+  endOverlay.classList.add(
+    "show"
+  );
+
+}
+
+
+/* =========================================================
+   رسم
+========================================================= */
+
+function draw(){
+
+  const g =
+    ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      H
+    );
+
+
+  g.addColorStop(
+    0,
+    "#0f172a"
+  );
+
+
+  g.addColorStop(
+    1,
+    "#1e1b4b"
+  );
+
+
+  ctx.fillStyle =
+    g;
+
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  /* ستاره‌ها */
+
+  stars.forEach(
+    s => {
+
+      const sy =
+        (
+          (
+            s.y -
+            camY *
+            .25
+          ) %
+          (H + 20) +
+          H +
+          20
+        ) %
+        (H + 20);
+
+
+      ctx.globalAlpha =
+        s.a;
+
+
+      ctx.fillStyle =
+        "#ffffff";
+
+
+      ctx.beginPath();
+
+
+      ctx.arc(
+        s.x,
+        sy,
+        s.r,
+        0,
+        Math.PI * 2
+      );
+
+
+      ctx.fill();
+
+    }
+  );
+
+
+  ctx.globalAlpha =
+    1;
+
+
+  ctx.save();
+
+
+  ctx.translate(
+    0,
+    -camY
+  );
+
+
+  /* سکوها */
+
+  platforms.forEach(
+    p => {
+
+      if(
+        p.broken
+      ){
+
+        return;
+
+      }
+
+
+      let color =
+        "#38bdf8";
+
+
+      if(
+        p.type ===
+        "move"
+      ){
+
+        color =
+          "#a78bfa";
+
+      }
+
+
+      if(
+        p.type ===
+        "break"
+      ){
+
+        color =
+          "#f87171";
+
+      }
+
+
+      if(
+        p.type ===
+        "spring"
+      ){
+
+        color =
+          "#4ade80";
+
+      }
+
+
+      ctx.fillStyle =
+        color;
+
+
+      ctx.shadowColor =
+        color;
+
+
+      ctx.shadowBlur =
+        12;
+
+
+      ctx.beginPath();
+
+
+      if(
+        ctx.roundRect
+      ){
+
+        ctx.roundRect(
+          p.x,
+          p.y,
+          p.w,
+          p.h,
+          6
+        );
+
+      }
+
+      else{
+
+        ctx.rect(
+          p.x,
+          p.y,
+          p.w,
+          p.h
+        );
+
+      }
+
+
+      ctx.fill();
+
+
+      ctx.shadowBlur =
+        0;
+
+
+      /* فنری */
+
+      if(
+        p.type ===
+        "spring"
+      ){
+
+        ctx.fillStyle =
+          "#fff";
+
+
+        ctx.font =
+          "11px sans-serif";
+
+
+        ctx.textAlign =
+          "center";
+
+
+        ctx.fillText(
+          "↑",
+          p.x +
+            p.w / 2,
+          p.y + 11
+        );
+
+      }
+
+
+      /* متحرک */
+
+      if(
+        p.type ===
+        "move"
+      ){
+
+        ctx.fillStyle =
+          "rgba(255,255,255,.7)";
+
+
+        ctx.font =
+          "9px sans-serif";
+
+
+        ctx.textAlign =
+          "center";
+
+
+        ctx.fillText(
+          "↔",
+          p.x +
+            p.w / 2,
+          p.y + 10
+        );
+
+      }
+
+    }
+  );
+
+
+  /* بازیکن */
+
+  if(player){
+
+    drawPlayer(
+      player.x,
+      player.y,
+      "#fbbf24"
+    );
+
+  }
+
+
+  /* ذرات */
+
+  particles.forEach(
+    p => {
+
+      ctx.beginPath();
+
+
+      ctx.arc(
+        p.x,
+        p.y,
+        2.4,
+        0,
+        Math.PI * 2
+      );
+
+
+      ctx.fillStyle =
+        p.color;
+
+
+      ctx.globalAlpha =
+        Math.max(
+          0,
+          p.life
+        );
+
+
+      ctx.fill();
+
+      ctx.globalAlpha =
+        1;
+
+    }
+  );
+
+
+  ctx.restore();
+
+}
+
+
+/* =========================================================
+   رسم بازیکن
+========================================================= */
+
+function drawPlayer(
+  x,
+  y,
+  color
+){
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+    x,
+    y,
+    13,
+    0,
+    Math.PI * 2
+  );
+
+
+  ctx.fillStyle =
+    color;
+
+
+  ctx.shadowColor =
+    color;
+
+
+  ctx.shadowBlur =
+    16;
+
+
+  ctx.fill();
+
+
+  ctx.shadowBlur =
+    0;
+
+
+  /* چشم چپ */
+
+  ctx.fillStyle =
+    "#0f172a";
+
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+    x - 4.5,
+    y - 3,
+    2.8,
+    0,
+    Math.PI * 2
+  );
+
+
+  ctx.fill();
+
+
+  /* چشم راست */
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+    x + 4.5,
+    y - 3,
+    2.8,
+    0,
+    Math.PI * 2
+  );
+
+
+  ctx.fill();
+
+}
+
+
+/* =========================================================
+   حلقه بازی
+========================================================= */
+
+function loop(ts){
+
+  if(!running){
+
+    return;
+
+  }
+
+
+  if(
+    lastTs === null
+  ){
+
+    lastTs =
+      ts;
+
+  }
+
+
+  const dt =
+    Math.min(
+      .033,
+      (
+        ts -
+        lastTs
+      ) / 1000
+    );
+
+
+  lastTs =
+    ts;
+
+
+  tick(dt);
+
+  draw();
+
+
+  if(running){
+
+    requestAnimationFrame(
+      loop
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   شروع بازی
+========================================================= */
+
+function start(){
+
+  initAudio();
+
+  resize();
+
+  reset();
+
+
+  startOverlay.classList.remove(
+    "show"
+  );
+
+
+  endOverlay.classList.remove(
+    "show"
+  );
+
+
+  running = true;
+
+  over = false;
+
+  lastTs = null;
+
+
+  requestAnimationFrame(
+    loop
+  );
+
+}
+
+
+/* =========================================================
+   کنترل لمسی
+========================================================= */
+
+let touching =
+  false;
+
+
+function pointerPos(e){
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+
+  return (
+    (
+      e.clientX -
+      rect.left
+    ) /
+    rect.width
+  ) * W;
+
+}
+
+
+canvas.addEventListener(
+  "pointerdown",
+  e => {
+
+    e.preventDefault();
+
+
+    touching =
+      true;
+
+
+    try{
+
+      canvas.setPointerCapture(
+        e.pointerId
+      );
+
+    }
+
+    catch(_){}
+
+
+    const x =
+      pointerPos(e);
+
+
+    moveX =
+      (
+        x / W -
+        .5
+      ) * 2;
+
+
+    moveX =
+      Math.max(
+        -1,
+        Math.min(
+          1,
+          moveX
+        )
+      );
+
+  }
+);
+
+
+canvas.addEventListener(
+  "pointermove",
+  e => {
+
+    if(!touching){
+
+      return;
+
+    }
+
+
+    e.preventDefault();
+
+
+    const x =
+      pointerPos(e);
+
+
+    moveX =
+      (
+        x / W -
+        .5
+      ) * 2;
+
+
+    moveX =
+      Math.max(
+        -1,
+        Math.min(
+          1,
+          moveX
+        )
+      );
+
+  }
+);
+
+
+function stopTouch(){
+
+  touching =
+    false;
+
+  moveX =
+    0;
+
+}
+
+
+canvas.addEventListener(
+  "pointerup",
+  stopTouch
+);
+
+
+canvas.addEventListener(
+  "pointercancel",
+  stopTouch
+);
+
+
+canvas.addEventListener(
+  "pointerleave",
+  e => {
+
+    if(
+      e.pointerType ===
+      "mouse"
+    ){
+
+      stopTouch();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   کیبورد
+========================================================= */
+
+const keys = {};
+
+
+window.addEventListener(
+  "keydown",
+  e => {
+
+    keys[e.key] =
+      true;
+
+
+    if(
+      keys["ArrowLeft"] ||
+      keys["a"] ||
+      keys["A"]
+    ){
+
+      moveX =
+        -1;
+
+    }
+
+    else if(
+      keys["ArrowRight"] ||
+      keys["d"] ||
+      keys["D"]
+    ){
+
+      moveX =
+        1;
+
+    }
+
+  }
+);
+
+
+window.addEventListener(
+  "keyup",
+  e => {
+
+    keys[e.key] =
+      false;
+
+
+    if(
+      keys["ArrowLeft"] ||
+      keys["a"] ||
+      keys["A"]
+    ){
+
+      moveX =
+        -1;
+
+    }
+
+    else if(
+      keys["ArrowRight"] ||
+      keys["d"] ||
+      keys["D"]
+    ){
+
+      moveX =
+        1;
+
+    }
+
+    else{
+
+      moveX =
+        0;
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   Mute
+========================================================= */
+
+muteBtn.addEventListener(
+  "click",
+  e => {
+
+    e.stopPropagation();
+
+
+    muted =
+      !muted;
+
+
+    muteBtn.textContent =
+      muted
+        ? "🔇"
+        : "🔊";
+
+
+    if(!muted){
+
+      initAudio();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   شروع
+========================================================= */
+
+startBtn.addEventListener(
+  "click",
+  e => {
+
+    e.preventDefault();
+
+    start();
+
+  }
+);
+
+
+/* =========================================================
+   دوباره
+========================================================= */
+
+restartBtn.addEventListener(
+  "click",
+  e => {
+
+    e.preventDefault();
+
+    start();
+
+  }
+);
+
+
+/* =========================================================
+   Resize
+========================================================= */
+
+window.addEventListener(
+  "resize",
+  () => {
+
+    resize();
+
+
+    if(running){
+
+      draw();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   جلوگیری از اسکرول/ژست‌های اضافی
+========================================================= */
+
+document.addEventListener(
+  "contextmenu",
+  e => {
+
+    e.preventDefault();
+
+  }
+);
+
+
+/* =========================================================
+   مقداردهی اولیه
+========================================================= */
+
+resize();
+
+initPlayerName();
+
+reset();
+
+draw();
+
+
+/*
+ * اگر از index.html با ?solo=1 وارد شده باشیم،
+ * بازی همچنان صفحه شروع خودش را نشان می‌دهد.
+ *
+ * این رفتار عمداً حفظ شده تا کاربر قبل از شروع
+ * بتواند صدا و توضیحات بازی را ببیند.
+ */
+
+</script>
+
+</body>
+
+</html>
