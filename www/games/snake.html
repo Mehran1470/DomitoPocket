@@ -2,1333 +2,1410 @@
 <html lang="fa" dir="rtl">
 
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  >
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
 
-  <title>مار | دومیتو جیبی</title>
+<title>بازی مار | دومیتو جیبی</title>
 
-  <!-- استایل اصلی دومیتو -->
-  <link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/style.css">
 
-  <style>
-    /*
-      =====================================================
-      SNAKE
-      فقط استایل اختصاصی بازی
-      ظاهر کلی از DomitoPocket/style.css می‌آید.
-      =====================================================
-    */
+<style>
+*{
+  box-sizing:border-box;
+}
 
-    .snake-page {
-      width: 100%;
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 16px;
-    }
+body{
+  overflow-x:hidden;
+}
 
-    .snake-header {
-      text-align: center;
-      margin-bottom: 16px;
-    }
+.wrap{
+  width:min(100%,520px);
+  margin:auto;
+  padding:18px 12px 35px;
+}
 
-    .snake-logo {
-      font-size: 46px;
-      line-height: 1;
-      margin-bottom: 8px;
-      animation: snakeFloat 2s ease-in-out infinite;
-    }
+.brand{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:15px;
+}
 
-    .snake-header h1 {
-      margin: 6px 0;
-    }
+.brand-mark{
+  font-size:42px;
+  filter:drop-shadow(0 0 12px rgba(80,255,150,.55));
+  animation:
+    snakeLogo 2s ease-in-out infinite,
+    logoGlow 1.7s ease-in-out infinite alternate;
+}
 
-    .snake-header p {
-      margin: 0;
-      opacity: .7;
-    }
+@keyframes snakeLogo{
+  0%,100%{
+    transform:rotate(-5deg) translateY(0)
+  }
 
-    @keyframes snakeFloat {
-      0%,
-      100% {
-        transform: translateY(0);
-      }
+  50%{
+    transform:rotate(5deg) translateY(-5px)
+  }
+}
 
-      50% {
-        transform: translateY(-5px);
-      }
-    }
+@keyframes logoGlow{
+  from{
+    filter:drop-shadow(
+      0 0 5px rgba(80,255,150,.35)
+    )
+  }
 
-    /*
-      کارت بازی
-      رنگ و ظاهر را از استایل اصلی دومیتو می‌گیرد.
-    */
+  to{
+    filter:drop-shadow(
+      0 0 18px rgba(80,255,150,.9)
+    )
+  }
+}
 
-    .snake-game-card {
-      width: 100%;
-    }
+.card{
+  position:relative;
+  overflow:hidden;
+}
 
-    /*
-      آمار
-    */
+.game-card{
+  padding:12px;
+}
 
-    .snake-stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 14px;
-    }
+.game-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+}
 
-    .snake-stat {
-      text-align: center;
-      padding: 10px 6px;
-    }
+.stat-box{
+  flex:1;
+  padding:9px 10px;
+  border-radius:15px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);
+  text-align:center;
+}
 
-    .snake-stat small {
-      display: block;
-      opacity: .65;
-      font-size: 11px;
-      margin-bottom: 3px;
-    }
+.stat-label{
+  display:block;
+  font-size:11px;
+  opacity:.65;
+  margin-bottom:2px;
+}
 
-    .snake-stat strong {
-      display: block;
-      font-size: 20px;
-      font-weight: 800;
-    }
+.stat-value{
+  display:block;
+  font-size:20px;
+  font-weight:900;
+}
 
-    /*
-      زمین بازی
-    */
+#scoreText{
+  color:#7dffad;
+  text-shadow:0 0 12px rgba(80,255,140,.35);
+}
 
-    .snake-board {
-      width: min(100%, 430px);
-      aspect-ratio: 1;
-      margin: 0 auto;
-      position: relative;
-      overflow: hidden;
-      border-radius: 20px;
-    }
+#speedText{
+  color:#7dd3fc;
+}
 
-    #snakeCanvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-      border-radius: inherit;
-      touch-action: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
+.snake-wrap{
+  position:relative;
+  width:min(100%,400px);
+  aspect-ratio:1;
+  margin:auto;
+  border-radius:25px;
+  overflow:hidden;
 
-    /*
-      کنترل‌ها
-    */
+  background:
+    radial-gradient(
+      circle at 50% 45%,
+      rgba(60,255,150,.07),
+      transparent 45%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(10,35,25,.98),
+      rgba(5,15,12,.98)
+    );
 
-    .snake-controls {
-      width: min(100%, 300px);
-      margin: 17px auto 0;
+  border:1px solid rgba(100,255,160,.15);
 
-      display: grid;
+  box-shadow:
+    0 0 35px rgba(0,255,130,.08),
+    inset 0 0 30px rgba(0,0,0,.45);
 
-      grid-template-columns:
-        repeat(3, 1fr);
+  transition:
+    transform .12s ease,
+    box-shadow .2s ease;
+}
 
-      gap: 8px;
-    }
+.snake-wrap.shake{
+  animation:shake .28s ease;
+}
 
-    .snake-control {
-      min-height: 54px;
+@keyframes shake{
+  0%{
+    transform:translate(0,0)
+  }
 
-      border: 0;
+  20%{
+    transform:translate(5px,-3px)
+  }
 
-      border-radius: 14px;
+  40%{
+    transform:translate(-5px,3px)
+  }
 
-      /*
-        از رنگ متن/تم دومیتو استفاده می‌کند.
-      */
+  60%{
+    transform:translate(4px,2px)
+  }
 
-      color: inherit;
+  80%{
+    transform:translate(-3px,-2px)
+  }
 
-      background: transparent;
+  100%{
+    transform:translate(0,0)
+  }
+}
 
-      font-size: 22px;
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  touch-action:none;
+}
 
-      cursor: pointer;
+.speed-flash{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:0;
 
-      touch-action: manipulation;
+  background:
+    radial-gradient(
+      circle,
+      rgba(80,220,255,.28),
+      transparent 65%
+    );
+}
 
-      transition:
-        transform .12s ease,
-        opacity .12s ease;
-    }
+.speed-flash.active{
+  animation:speedFlash .7s ease;
+}
 
-    .snake-control:hover {
-      opacity: .85;
-    }
+@keyframes speedFlash{
+  0%{
+    opacity:0
+  }
 
-    .snake-control:active {
-      transform: scale(.92);
-    }
+  20%{
+    opacity:1
+  }
 
-    .snake-control.up {
-      grid-column: 2;
-    }
+  100%{
+    opacity:0
+  }
+}
 
-    .snake-control.left {
-      grid-column: 1;
-      grid-row: 2;
-    }
+.game-message{
+  text-align:center;
+  margin-top:12px;
+  min-height:24px;
+  font-size:13px;
+  opacity:.72;
+}
 
-    .snake-control.down {
-      grid-column: 2;
-      grid-row: 2;
-    }
+.dpad{
+  display:grid;
+  grid-template-columns:repeat(3,62px);
+  grid-template-rows:repeat(2,62px);
+  justify-content:center;
+  gap:8px;
+  margin-top:14px;
+}
 
-    .snake-control.right {
-      grid-column: 3;
-      grid-row: 2;
-    }
+.dpad button{
+  border:0;
+  border-radius:18px;
+  font-size:25px;
+  color:white;
 
-    /*
-      دکمه‌های پایین
-    */
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.12),
+      rgba(255,255,255,.045)
+    );
 
-    .snake-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
+  border:1px solid rgba(255,255,255,.1);
 
-    .snake-actions button {
-      flex: 1;
-    }
+  box-shadow:
+    0 7px 18px rgba(0,0,0,.2),
+    inset 0 1px 0 rgba(255,255,255,.08);
 
-    /*
-      پیام
-    */
+  transition:
+    transform .08s ease,
+    background .15s ease;
+}
 
-    .snake-message {
-      text-align: center;
-      min-height: 24px;
-      margin-top: 10px;
-      opacity: .75;
-      font-size: 13px;
-    }
+.dpad button:active{
+  transform:scale(.88);
+  background:rgba(80,255,150,.18);
+}
 
-    /*
-      نتیجه
-    */
+.dp-up{
+  grid-column:2;
+}
 
-    .snake-result {
-      display: none;
-      text-align: center;
-      margin-top: 14px;
-    }
+.dp-left{
+  grid-column:1;
+  grid-row:2;
+}
 
-    .snake-result.show {
-      display: block;
-    }
+.dp-right{
+  grid-column:3;
+  grid-row:2;
+}
 
-    .snake-result-title {
-      font-size: 21px;
-      font-weight: 800;
-      margin-bottom: 5px;
-    }
+.dp-down{
+  grid-column:2;
+  grid-row:2;
+}
 
-    .snake-result-score {
-      opacity: .7;
-    }
+#scoreArea{
+  animation:cardIn .65s cubic-bezier(.2,.8,.2,1);
+}
 
-    .snake-help {
-      text-align: center;
-      margin-top: 12px;
-      opacity: .5;
-      font-size: 11px;
-      line-height: 1.8;
-    }
+@keyframes cardIn{
+  from{
+    opacity:0;
+    transform:translateY(25px) scale(.94);
+  }
 
-    @media (max-width: 380px) {
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
 
-      .snake-page {
-        padding: 10px;
-      }
+.solo-result{
+  text-align:center;
+  padding:18px 5px;
+}
 
-      .snake-control {
-        min-height: 50px;
-      }
+.big-emoji{
+  font-size:64px;
 
-    }
-  </style>
+  animation:
+    resultPop .65s cubic-bezier(.2,1.5,.4,1),
+    resultFloat 2s ease-in-out .65s infinite;
+}
+
+@keyframes resultPop{
+  from{
+    opacity:0;
+    transform:scale(.2) rotate(-20deg);
+  }
+
+  to{
+    opacity:1;
+    transform:scale(1) rotate(0);
+  }
+}
+
+@keyframes resultFloat{
+  0%,100%{
+    transform:translateY(0)
+  }
+
+  50%{
+    transform:translateY(-8px)
+  }
+}
+
+.score-big{
+  font-size:27px;
+  font-weight:900;
+  margin:10px 0 18px;
+  color:#7dffad;
+}
+
+@media(max-width:430px){
+
+  .dpad{
+    grid-template-columns:repeat(3,55px);
+    grid-template-rows:repeat(2,55px);
+  }
+
+  .dpad button{
+    font-size:22px;
+  }
+
+}
+</style>
 </head>
-
 
 <body>
 
-  <main class="snake-page">
+<div class="wrap">
 
-    <!-- عنوان -->
+  <div class="brand">
 
-    <header class="snake-header">
+    <div class="brand-mark">
+      🐍
+    </div>
 
-      <div class="snake-logo">
-        🐍
-      </div>
+    <h1>
+      بازی مار
+    </h1>
 
-      <h1>
-        بازی مار
-      </h1>
-
-      <p id="welcomeText">
-        دومیتو جیبی
-      </p>
-
-    </header>
+  </div>
 
 
-    <!-- کارت بازی -->
+  <div
+    class="card game-card"
+    id="playArea"
+  >
 
-    <section class="card snake-game-card">
+    <div class="game-header">
 
+      <div class="stat-box">
 
-      <!-- آمار -->
+        <span class="stat-label">
+          امتیاز
+        </span>
 
-      <div class="snake-stats">
-
-        <div class="snake-stat">
-
-          <small>
-            امتیاز
-          </small>
-
-          <strong id="score">
-            ۰
-          </strong>
-
-        </div>
-
-
-        <div class="snake-stat">
-
-          <small>
-            رکورد
-          </small>
-
-          <strong id="highScore">
-            ۰
-          </strong>
-
-        </div>
-
-
-        <div class="snake-stat">
-
-          <small>
-            سرعت
-          </small>
-
-          <strong id="speedLabel">
-            ۱
-          </strong>
-
-        </div>
+        <span
+          class="stat-value"
+          id="scoreText"
+        >
+          0
+        </span>
 
       </div>
 
 
-      <!-- زمین -->
+      <div class="stat-box">
 
-      <div class="snake-board">
+        <span class="stat-label">
+          رکورد
+        </span>
 
-        <canvas
-          id="snakeCanvas"
-          width="400"
-          height="400"
-        ></canvas>
+        <span
+          class="stat-value"
+          id="highScoreText"
+        >
+          0
+        </span>
 
       </div>
 
 
-      <!-- کنترل‌ها -->
+      <div class="stat-box">
 
-      <div class="snake-controls">
+        <span class="stat-label">
+          سرعت
+        </span>
 
-        <button
-          class="snake-control up"
-          data-dir="up"
-          aria-label="بالا"
+        <span
+          class="stat-value"
+          id="speedText"
         >
-          ▲
-        </button>
-
-        <button
-          class="snake-control left"
-          data-dir="left"
-          aria-label="چپ"
-        >
-          ◀
-        </button>
-
-        <button
-          class="snake-control down"
-          data-dir="down"
-          aria-label="پایین"
-        >
-          ▼
-        </button>
-
-        <button
-          class="snake-control right"
-          data-dir="right"
-          aria-label="راست"
-        >
-          ▶
-        </button>
+          1×
+        </span>
 
       </div>
 
-
-      <!-- دکمه‌ها -->
-
-      <div class="snake-actions">
-
-        <button
-          id="restartBtn"
-          class="btn"
-        >
-          🔄 شروع دوباره
-        </button>
-
-        <button
-          id="homeBtn"
-          class="btn"
-        >
-          🏠 خانه
-        </button>
-
-      </div>
+    </div>
 
 
-      <!-- پیام -->
+    <div
+      class="snake-wrap"
+      id="snakeWrap"
+    >
+
+      <canvas
+        id="snakeCanvas"
+        width="400"
+        height="400"
+      ></canvas>
+
 
       <div
-        id="message"
-        class="snake-message"
+        class="speed-flash"
+        id="speedFlash"
       ></div>
 
+    </div>
 
-      <!-- نتیجه -->
 
-      <div
-        id="result"
-        class="snake-result"
+    <div
+      class="game-message"
+      id="gameMessage"
+    >
+      غذا بخور و بزرگ‌تر شو! 🍎
+    </div>
+
+
+    <div class="dpad">
+
+      <button
+        class="dp-up"
+        aria-label="بالا"
       >
+        ⬆️
+      </button>
 
-        <div
-          id="resultTitle"
-          class="snake-result-title"
-        >
-          🐍 بازی تمام شد
-        </div>
 
-        <div
-          id="resultScore"
-          class="snake-result-score"
-        >
-          امتیاز: ۰
-        </div>
+      <button
+        class="dp-left"
+        aria-label="چپ"
+      >
+        ⬅️
+      </button>
 
-      </div>
 
+      <button
+        class="dp-right"
+        aria-label="راست"
+      >
+        ➡️
+      </button>
 
-      <div class="snake-help">
 
-        با کلیدهای جهت‌دار، دکمه‌های روی صفحه
-        یا کشیدن انگشت روی زمین بازی حرکت کن.
+      <button
+        class="dp-down"
+        aria-label="پایین"
+      >
+        ⬇️
+      </button>
 
-      </div>
+    </div>
 
-    </section>
+  </div>
 
-  </main>
 
+  <div
+    class="card"
+    id="scoreArea"
+    style="display:none"
+  >
 
-  <script type="module">
+    <div
+      class="solo-result"
+      id="soloResult"
+    ></div>
 
-    /*
-      =====================================================
-      DomitoPocket
-      =====================================================
-    */
+  </div>
 
-    import {
-      getSavedName
-    } from "../js/store.js";
+</div>
 
 
-    /*
-      =====================================================
-      عناصر
-      =====================================================
-    */
+<script type="module">
 
-    const canvas =
-      document.getElementById("snakeCanvas");
+/*
+=========================================================
+اتصال فقط به DomitoPocket
+=========================================================
 
-    const ctx =
-      canvas.getContext("2d");
+این بازی به Firebase، اتاق، چت، سکه یا آمار
+دومیتوی اصلی وابسته نیست.
 
+فقط نام ذخیره‌شده در Pocket را می‌گیرد.
+=========================================================
+*/
 
-    const scoreEl =
-      document.getElementById("score");
+import {
+  getSavedName
+} from "../js/store.js";
 
-    const highScoreEl =
-      document.getElementById("highScore");
 
-    const speedLabelEl =
-      document.getElementById("speedLabel");
+/* =========================================================
+   Canvas
+========================================================= */
 
-    const messageEl =
-      document.getElementById("message");
+const canvas =
+  document.getElementById(
+    "snakeCanvas"
+  );
 
-    const resultEl =
-      document.getElementById("result");
+const ctx =
+  canvas.getContext("2d");
 
-    const resultTitleEl =
-      document.getElementById("resultTitle");
 
-    const resultScoreEl =
-      document.getElementById("resultScore");
+const snakeWrap =
+  document.getElementById(
+    "snakeWrap"
+  );
 
-    const welcomeText =
-      document.getElementById("welcomeText");
 
-    const restartBtn =
-      document.getElementById("restartBtn");
+const speedFlash =
+  document.getElementById(
+    "speedFlash"
+  );
 
-    const homeBtn =
-      document.getElementById("homeBtn");
 
+const scoreText =
+  document.getElementById(
+    "scoreText"
+  );
 
-    /*
-      =====================================================
-      تنظیمات
-      =====================================================
-    */
 
-    const GRID = 20;
+const highScoreText =
+  document.getElementById(
+    "highScoreText"
+  );
 
-    const CELL =
-      canvas.width / GRID;
 
-    const START_SPEED = 180;
+const speedText =
+  document.getElementById(
+    "speedText"
+  );
 
-    const MIN_SPEED = 62;
 
-    const SPEED_STEP = 10;
+const gameMessage =
+  document.getElementById(
+    "gameMessage"
+  );
 
-    const SPEED_INTERVAL = 12000;
 
-    const HIGH_SCORE_KEY =
-      "domito_snake_highscore";
+/* =========================================================
+   تنظیمات اصلی بازی
+========================================================= */
 
+const GRID = 20;
 
-    /*
-      =====================================================
-      بازیکن دومیتو
-      =====================================================
-    */
+const CELL =
+  canvas.width / GRID;
 
-    let playerName =
-      "بازیکن";
+const FOOD_SCORE = 10;
 
-    try {
 
-      playerName =
-        getSavedName() || "بازیکن";
+/*
+   سرعت شروع
+*/
 
-    } catch (error) {
+const START_SPEED = 190;
 
-      console.warn(
-        "Domito name unavailable:",
-        error
-      );
 
-    }
+/*
+   سریع‌ترین حالت
+*/
 
-    welcomeText.textContent =
-      `سلام ${playerName} 👋`;
+const MIN_SPEED = 62;
 
 
-    /*
-      =====================================================
-      وضعیت بازی
-      =====================================================
-    */
+/*
+   مقدار افزایش سرعت
+*/
 
-    let snake = [];
+const SPEED_STEP = 10;
 
-    let food = null;
 
-    let dir = {
-      x: 1,
-      y: 0
-    };
+/*
+   هر ۱۲ ثانیه سریع‌تر می‌شود
+*/
 
-    let nextDir = {
-      x: 1,
-      y: 0
-    };
+const SPEED_INTERVAL = 12000;
 
-    let score = 0;
 
-    let highScore =
-      Number(
-        localStorage.getItem(
-          HIGH_SCORE_KEY
-        )
-      ) || 0;
+/* =========================================================
+   وضعیت بازی
+========================================================= */
 
-    let speed =
-      START_SPEED;
+let snake = [
+  {
+    x:9,
+    y:10
+  },
 
-    let gameTimer = null;
+  {
+    x:8,
+    y:10
+  },
 
-    let speedTimer = null;
+  {
+    x:7,
+    y:10
+  }
+];
 
-    let running = false;
 
-    let gameOverState = false;
+let dir = {
+  x:1,
+  y:0
+};
 
-    let particles = [];
 
+let nextDir = {
+  x:1,
+  y:0
+};
 
-    let touchStartX = 0;
 
-    let touchStartY = 0;
+let food =
+  randomFood();
 
 
-    highScoreEl.textContent =
-      toPersianNumber(highScore);
+let done = false;
 
 
-    /*
-      =====================================================
-      صدا
-      =====================================================
-    */
+let score = 0;
 
-    let audioContext = null;
 
+let speed =
+  START_SPEED;
 
-    function initAudio() {
 
-      if (!audioContext) {
+let speedLevel = 1;
 
-        try {
 
-          audioContext =
-            new (
-              window.AudioContext ||
-              window.webkitAudioContext
-            )();
+let gameLoop = null;
 
-        } catch (error) {
 
-          return;
-        }
-      }
+let speedTimer = null;
 
 
-      if (
-        audioContext &&
-        audioContext.state === "suspended"
-      ) {
+let animationFrame = null;
 
-        audioContext
-          .resume()
-          .catch(() => {});
 
-      }
-    }
+/* =========================================================
+   نام بازیکن
+========================================================= */
 
+let playerName = "بازیکن";
 
-    function beep(
-      frequency,
-      duration = 0.06,
-      volume = 0.025
-    ) {
+try{
 
-      if (!audioContext) return;
+  playerName =
+    getSavedName() ||
+    "بازیکن";
 
+}catch(error){
 
-      try {
+  playerName =
+    "بازیکن";
 
-        const oscillator =
-          audioContext.createOscillator();
+}
 
-        const gain =
-          audioContext.createGain();
 
+/* =========================================================
+   رکورد محلی
+========================================================= */
 
-        oscillator.frequency.value =
-          frequency;
+const HIGH_SCORE_KEY =
+  "domito_snake_highscore";
 
-        gain.gain.value =
-          volume;
 
+let highScore =
+  Number(
+    localStorage.getItem(
+      HIGH_SCORE_KEY
+    ) || 0
+  );
 
-        oscillator.connect(gain);
 
-        gain.connect(
-          audioContext.destination
-        );
+highScoreText.textContent =
+  highScore;
 
 
-        oscillator.start();
+/* =========================================================
+   Web Audio
+========================================================= */
 
+let audioCtx = null;
 
-        gain.gain.exponentialRampToValueAtTime(
-          0.0001,
-          audioContext.currentTime +
-          duration
-        );
 
+function initAudio(){
 
-        oscillator.stop(
-          audioContext.currentTime +
-          duration
-        );
+  if(audioCtx){
+    return;
+  }
 
-      } catch (error) {}
+  try{
 
-    }
+    audioCtx =
+      new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
 
+  }catch(e){
 
-    /*
-      =====================================================
-      غذای جدید
-      =====================================================
-    */
+    audioCtx = null;
 
-    function randomFood() {
+  }
 
-      let position;
+}
 
 
-      do {
+function beep(
+  frequency,
+  duration,
+  type = "sine",
+  volume = .045
+){
 
-        position = {
+  if(!audioCtx){
+    return;
+  }
 
-          x:
-            Math.floor(
-              Math.random() * GRID
-            ),
+  try{
 
-          y:
-            Math.floor(
-              Math.random() * GRID
-            )
+    if(
+      audioCtx.state === "suspended"
+    ){
 
-        };
-
-      } while (
-
-        snake.some(
-          part =>
-            part.x === position.x &&
-            part.y === position.y
-        )
-
-      );
-
-
-      return position;
-    }
-
-
-    /*
-      =====================================================
-      شروع بازی
-      =====================================================
-    */
-
-    function startGame() {
-
-      initAudio();
-
-
-      clearInterval(gameTimer);
-
-      clearInterval(speedTimer);
-
-
-      snake = [
-
-        {
-          x: 9,
-          y: 10
-        },
-
-        {
-          x: 8,
-          y: 10
-        },
-
-        {
-          x: 7,
-          y: 10
-        }
-
-      ];
-
-
-      dir = {
-        x: 1,
-        y: 0
-      };
-
-
-      nextDir = {
-        x: 1,
-        y: 0
-      };
-
-
-      score = 0;
-
-      speed =
-        START_SPEED;
-
-
-      food =
-        randomFood();
-
-
-      particles = [];
-
-
-      running = true;
-
-      gameOverState = false;
-
-
-      scoreEl.textContent =
-        "۰";
-
-      speedLabelEl.textContent =
-        "۱";
-
-
-      resultEl.classList.remove(
-        "show"
-      );
-
-
-      messageEl.textContent =
-        "بخور و بزرگ شو! 🍎";
-
-
-      gameTimer =
-        setInterval(
-          tick,
-          speed
-        );
-
-
-      speedTimer =
-        setInterval(
-          increaseSpeed,
-          SPEED_INTERVAL
-        );
-
-
-      render();
+      audioCtx.resume();
 
     }
 
 
-    /*
-      =====================================================
-      افزایش سرعت
-      =====================================================
-    */
+    const osc =
+      audioCtx.createOscillator();
 
-    function increaseSpeed() {
 
-      if (!running) return;
+    const gain =
+      audioCtx.createGain();
 
 
-      speed =
-        Math.max(
-          MIN_SPEED,
-          speed - SPEED_STEP
-        );
+    osc.type =
+      type;
 
 
-      const level =
-        Math.floor(
-          (START_SPEED - speed) /
-          SPEED_STEP
-        ) + 1;
+    osc.frequency.value =
+      frequency;
 
 
-      speedLabelEl.textContent =
-        toPersianNumber(level);
+    gain.gain.setValueAtTime(
+      volume,
+      audioCtx.currentTime
+    );
 
 
-      clearInterval(gameTimer);
+    gain.gain.exponentialRampToValueAtTime(
+      .001,
+      audioCtx.currentTime + duration
+    );
 
 
-      gameTimer =
-        setInterval(
-          tick,
-          speed
-        );
+    osc.connect(
+      gain
+    );
 
-    }
 
+    gain.connect(
+      audioCtx.destination
+    );
 
-    /*
-      =====================================================
-      جهت
-      =====================================================
-    */
 
-    function setDirection(
-      x,
-      y
-    ) {
+    osc.start();
 
-      if (
-        !running ||
-        gameOverState
-      ) {
-        return;
-      }
 
+    osc.stop(
+      audioCtx.currentTime +
+      duration
+    );
 
-      /*
-        جلوگیری از برگشت مستقیم
-      */
+  }catch(e){}
 
-      if (
-        x === -dir.x &&
-        y === -dir.y
-      ) {
-        return;
-      }
+}
 
 
-      /*
-        جلوگیری از صف جهت‌های
-        غیرمجاز
-      */
+function soundFood(){
 
-      if (
-        x === -nextDir.x &&
-        y === -nextDir.y
-      ) {
-        return;
-      }
+  beep(
+    620,
+    .07,
+    "sine",
+    .055
+  );
 
 
-      nextDir = {
-        x,
-        y
-      };
-
-
-      initAudio();
-
-    }
-
-
-    /*
-      =====================================================
-      حرکت
-      =====================================================
-    */
-
-    function tick() {
-
-      if (
-        !running ||
-        gameOverState
-      ) {
-        return;
-      }
-
-
-      dir = nextDir;
-
-
-      const head = {
-
-        x:
-          snake[0].x +
-          dir.x,
-
-        y:
-          snake[0].y +
-          dir.y
-
-      };
-
-
-      /*
-        برخورد با دیوار
-      */
-
-      if (
-
-        head.x < 0 ||
-
-        head.x >= GRID ||
-
-        head.y < 0 ||
-
-        head.y >= GRID
-
-      ) {
-
-        finishGame();
-
-        return;
-      }
-
-
-      /*
-        خوردن غذا
-      */
-
-      const ateFood =
-
-        head.x === food.x &&
-        head.y === food.y;
-
-
-      /*
-        اگر غذا نخورده،
-        دم حذف خواهد شد.
-      */
-
-      const bodyToCheck =
-        ateFood
-          ? snake
-          : snake.slice(0, -1);
-
-
-      /*
-        برخورد با بدن
-      */
-
-      if (
-
-        bodyToCheck.some(
-
-          part =>
-
-            part.x === head.x &&
-            part.y === head.y
-
-        )
-
-      ) {
-
-        finishGame();
-
-        return;
-      }
-
-
-      snake.unshift(head);
-
-
-      if (ateFood) {
-
-        score += 10;
-
-
-        scoreEl.textContent =
-          toPersianNumber(score);
-
-
-        beep(
-          660,
-          .08,
-          .035
-        );
-
-
-        createParticles(
-
-          food.x * CELL +
-          CELL / 2,
-
-          food.y * CELL +
-          CELL / 2
-
-        );
-
-
-        food =
-          randomFood();
-
-
-      } else {
-
-        snake.pop();
-
-      }
-
-
-      render();
-
-    }
-
-
-    /*
-      =====================================================
-      پایان بازی
-      =====================================================
-    */
-
-    function finishGame() {
-
-      if (gameOverState) {
-        return;
-      }
-
-
-      gameOverState = true;
-
-      running = false;
-
-
-      clearInterval(gameTimer);
-
-      clearInterval(speedTimer);
-
-
+  setTimeout(
+    () =>
       beep(
-        150,
-        .16,
-        .04
+        920,
+        .08,
+        "sine",
+        .045
+      ),
+    45
+  );
+
+}
+
+
+function soundTurn(){
+
+  beep(
+    180,
+    .035,
+    "triangle",
+    .018
+  );
+
+}
+
+
+function soundSpeedUp(){
+
+  beep(
+    400,
+    .07,
+    "square",
+    .025
+  );
+
+
+  setTimeout(
+    () =>
+      beep(
+        650,
+        .1,
+        "square",
+        .035
+      ),
+    65
+  );
+
+}
+
+
+function soundGameOver(){
+
+  beep(
+    260,
+    .15,
+    "sawtooth",
+    .035
+  );
+
+
+  setTimeout(
+    () =>
+      beep(
+        170,
+        .22,
+        "sawtooth",
+        .03
+      ),
+    100
+  );
+
+}
+
+
+function soundStart(){
+
+  beep(
+    500,
+    .06,
+    "triangle",
+    .025
+  );
+
+
+  setTimeout(
+    () =>
+      beep(
+        700,
+        .08,
+        "triangle",
+        .025
+      ),
+    70
+  );
+
+}
+
+
+/* =========================================================
+   ذرات
+========================================================= */
+
+let particles = [];
+
+
+function createFoodParticles(){
+
+  const cx =
+    food.x * CELL +
+    CELL / 2;
+
+
+  const cy =
+    food.y * CELL +
+    CELL / 2;
+
+
+  for(
+    let i = 0;
+    i < 18;
+    i++
+  ){
+
+    const angle =
+      Math.random() *
+      Math.PI *
+      2;
+
+
+    const velocity =
+      1.2 +
+      Math.random() * 2.8;
+
+
+    particles.push({
+
+      x:cx,
+
+      y:cy,
+
+      vx:
+        Math.cos(angle) *
+        velocity,
+
+      vy:
+        Math.sin(angle) *
+        velocity,
+
+      life:1,
+
+      size:
+        2 +
+        Math.random() * 3
+
+    });
+
+  }
+
+}
+
+
+function updateParticles(){
+
+  for(
+    let i = particles.length - 1;
+    i >= 0;
+    i--
+  ){
+
+    const p =
+      particles[i];
+
+
+    p.x += p.vx;
+
+    p.y += p.vy;
+
+
+    p.vx *= .96;
+
+    p.vy *= .96;
+
+
+    p.life -= .045;
+
+
+    if(
+      p.life <= 0
+    ){
+
+      particles.splice(
+        i,
+        1
       );
 
+    }
 
-      if (score > highScore) {
+  }
 
-        highScore =
-          score;
-
-
-        localStorage.setItem(
-
-          HIGH_SCORE_KEY,
-
-          String(highScore)
-
-        );
+}
 
 
-        highScoreEl.textContent =
-          toPersianNumber(
-            highScore
-          );
+/* =========================================================
+   غذای جدید
+========================================================= */
+
+function randomFood(){
+
+  let f;
 
 
-        resultTitleEl.textContent =
-          "🏆 رکورد جدید!";
+  do{
+
+    f = {
+
+      x:
+        Math.floor(
+          Math.random() *
+          GRID
+        ),
+
+      y:
+        Math.floor(
+          Math.random() *
+          GRID
+        )
+
+    };
+
+  }while(
+
+    snake.some(
+      s =>
+        s.x === f.x &&
+        s.y === f.y
+    )
+
+  );
 
 
-      } else {
+  return f;
 
-        resultTitleEl.textContent =
-          "🐍 بازی تمام شد";
+}
+
+
+/* =========================================================
+   پس‌زمینه
+========================================================= */
+
+function drawBackground(){
+
+  const gradient =
+    ctx.createLinearGradient(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+
+  gradient.addColorStop(
+    0,
+    "#071c12"
+  );
+
+
+  gradient.addColorStop(
+    1,
+    "#03100a"
+  );
+
+
+  ctx.fillStyle =
+    gradient;
+
+
+  ctx.fillRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+
+  ctx.strokeStyle =
+    "rgba(100,255,160,.035)";
+
+
+  ctx.lineWidth = 1;
+
+
+  for(
+    let i = 0;
+    i <= GRID;
+    i++
+  ){
+
+    const p =
+      i * CELL;
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      p,
+      0
+    );
+
+    ctx.lineTo(
+      p,
+      canvas.height
+    );
+
+    ctx.stroke();
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      p
+    );
+
+    ctx.lineTo(
+      canvas.width,
+      p
+    );
+
+    ctx.stroke();
+
+  }
+
+}
+
+
+/* =========================================================
+   غذا
+========================================================= */
+
+function drawFood(time){
+
+  const cx =
+    food.x * CELL +
+    CELL / 2;
+
+
+  const cy =
+    food.y * CELL +
+    CELL / 2;
+
+
+  const pulse =
+    1 +
+    Math.sin(
+      time * .008
+    ) * .12;
+
+
+  const glow =
+    ctx.createRadialGradient(
+      cx,
+      cy,
+      1,
+      cx,
+      cy,
+      CELL * 1.4
+    );
+
+
+  glow.addColorStop(
+    0,
+    "rgba(255,210,70,.55)"
+  );
+
+
+  glow.addColorStop(
+    .45,
+    "rgba(255,170,40,.18)"
+  );
+
+
+  glow.addColorStop(
+    1,
+    "rgba(255,170,40,0)"
+  );
+
+
+  ctx.fillStyle =
+    glow;
+
+
+  ctx.fillRect(
+    cx - CELL * 1.5,
+    cy - CELL * 1.5,
+    CELL * 3,
+    CELL * 3
+  );
+
+
+  ctx.save();
+
+
+  ctx.translate(
+    cx,
+    cy
+  );
+
+
+  ctx.scale(
+    pulse,
+    pulse
+  );
+
+
+  const r =
+    CELL * .30;
+
+
+  const foodGradient =
+    ctx.createRadialGradient(
+      -r * .35,
+      -r * .4,
+      1,
+      0,
+      0,
+      r * 1.5
+    );
+
+
+  foodGradient.addColorStop(
+    0,
+    "#fff7b0"
+  );
+
+
+  foodGradient.addColorStop(
+    .3,
+    "#ffd84d"
+  );
+
+
+  foodGradient.addColorStop(
+    1,
+    "#ff8b22"
+  );
+
+
+  ctx.fillStyle =
+    foodGradient;
+
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+    0,
+    0,
+    r,
+    0,
+    Math.PI * 2
+  );
+
+
+  ctx.fill();
+
+
+  ctx.fillStyle =
+    "#63ff9b";
+
+
+  ctx.beginPath();
+
+
+  ctx.ellipse(
+    r * .65,
+    -r * .9,
+    r * .35,
+    r * .18,
+    -.5,
+    0,
+    Math.PI * 2
+  );
+
+
+  ctx.fill();
+
+
+  ctx.restore();
+
+}
+
+
+/* =========================================================
+   مار
+========================================================= */
+
+function drawSnake(time){
+
+  snake.forEach(
+    (s, i) => {
+
+      const x =
+        s.x * CELL;
+
+
+      const y =
+        s.y * CELL;
+
+
+      const padding =
+        i === 0
+          ? 1.8
+          : 2.8;
+
+
+      const size =
+        CELL -
+        padding * 2;
+
+
+      if(i === 0){
+
+        ctx.shadowColor =
+          "rgba(70,255,145,.55)";
+
+
+        ctx.shadowBlur = 13;
+
+      }else{
+
+        ctx.shadowBlur = 0;
 
       }
 
 
-      resultScoreEl.textContent =
-        `امتیاز ${playerName}: ${toPersianNumber(score)}`;
-
-
-      resultEl.classList.add(
-        "show"
-      );
-
-
-      messageEl.textContent =
-        "برای بازی دوباره روی «شروع دوباره» بزن.";
-
-
-      render();
-
-    }
-
-
-    /*
-      =====================================================
-      ذرات
-      =====================================================
-    */
-
-    function createParticles(
-      x,
-      y
-    ) {
-
-      for (
-        let i = 0;
-        i < 12;
-        i++
-      ) {
-
-        particles.push({
-
-          x,
-
-          y,
-
-          vx:
-            (Math.random() - .5) *
-            2.5,
-
-          vy:
-            (Math.random() - .5) *
-            2.5,
-
-          life: 1
-
-        });
-
-      }
-
-    }
-
-
-    function updateParticles() {
-
-      particles =
-        particles.filter(
-          particle =>
-            particle.life > 0
+      const green =
+        Math.max(
+          90,
+          205 - i * 5
         );
 
-
-      particles.forEach(
-        particle => {
-
-          particle.x +=
-            particle.vx;
-
-          particle.y +=
-            particle.vy;
-
-          particle.life -=
-            .045;
-
-        }
-      );
-
-    }
-
-
-    /*
-      =====================================================
-      رسم بازی
-      =====================================================
-    */
-
-    function render() {
-
-      drawBackground();
-
-      drawGrid();
-
-      drawFood();
-
-      drawSnake();
-
-      updateParticles();
-
-      drawParticles();
-
-
-      if (
-        particles.length > 0
-      ) {
-
-        requestAnimationFrame(
-          renderParticles
-        );
-
-      }
-
-    }
-
-
-    function renderParticles() {
-
-      drawBackground();
-
-      drawGrid();
-
-      drawFood();
-
-      drawSnake();
-
-      updateParticles();
-
-      drawParticles();
-
-
-      if (
-        particles.length > 0
-      ) {
-
-        requestAnimationFrame(
-          renderParticles
-        );
-
-      }
-
-    }
-
-
-    /*
-      =====================================================
-      پس‌زمینه زمین بازی
-      =====================================================
-
-      این بخش عمداً فقط داخل Canvas است.
-      صفحه و کارت از DomitoPocket/style.css می‌آیند.
-    */
-
-    function drawBackground() {
 
       const gradient =
         ctx.createLinearGradient(
-          0,
-          0,
-          canvas.width,
-          canvas.height
+          x,
+          y,
+          x + CELL,
+          y + CELL
         );
 
 
       gradient.addColorStop(
         0,
-        "#182338"
+        i === 0
+          ? "#b8ffd0"
+          : `rgb(80,${green},125)`
+      );
+
+
+      gradient.addColorStop(
+        .45,
+        i === 0
+          ? "#42ff91"
+          : `rgb(45,${Math.max(
+              110,
+              green - 30
+            )},90)`
       );
 
 
       gradient.addColorStop(
         1,
-        "#101827"
+        i === 0
+          ? "#13c96c"
+          : "#087c45"
       );
 
 
@@ -1336,132 +1413,13 @@
         gradient;
 
 
-      ctx.fillRect(
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
-
-    }
-
-
-    /*
-      =====================================================
-      شبکه
-      =====================================================
-    */
-
-    function drawGrid() {
-
-      ctx.save();
-
-
-      ctx.strokeStyle =
-        "rgba(255,255,255,.045)";
-
-
-      ctx.lineWidth = 1;
-
-
-      for (
-        let i = 1;
-        i < GRID;
-        i++
-      ) {
-
-        ctx.beginPath();
-
-
-        ctx.moveTo(
-          i * CELL,
-          0
-        );
-
-
-        ctx.lineTo(
-          i * CELL,
-          canvas.height
-        );
-
-
-        ctx.stroke();
-
-
-        ctx.beginPath();
-
-
-        ctx.moveTo(
-          0,
-          i * CELL
-        );
-
-
-        ctx.lineTo(
-          canvas.width,
-          i * CELL
-        );
-
-
-        ctx.stroke();
-
-      }
-
-
-      ctx.restore();
-
-    }
-
-
-    /*
-      =====================================================
-      غذا
-      =====================================================
-    */
-
-    function drawFood() {
-
-      if (!food) return;
-
-
-      const cx =
-        food.x * CELL +
-        CELL / 2;
-
-
-      const cy =
-        food.y * CELL +
-        CELL / 2;
-
-
-      ctx.save();
-
-
-      ctx.shadowBlur = 15;
-
-      ctx.shadowColor =
-        "rgba(255,80,90,.55)";
-
-
-      ctx.fillStyle =
-        "#ff5964";
-
-
-      ctx.beginPath();
-
-
-      ctx.arc(
-
-        cx,
-
-        cy + 1,
-
-        CELL * .34,
-
-        0,
-
-        Math.PI * 2
-
+      roundRect(
+        ctx,
+        x + padding,
+        y + padding,
+        size,
+        size,
+        i === 0 ? 7 : 5
       );
 
 
@@ -1471,264 +1429,164 @@
       ctx.shadowBlur = 0;
 
 
-      ctx.fillStyle =
-        "#78d66d";
+      if(i > 0){
 
+        ctx.fillStyle =
+          "rgba(255,255,255,.12)";
 
-      ctx.beginPath();
 
+        roundRect(
+          ctx,
+          x + padding + 2,
+          y + padding + 2,
+          size * .55,
+          2,
+          2
+        );
 
-      ctx.ellipse(
 
-        cx + 5,
-
-        cy - 8,
-
-        5,
-
-        3,
-
-        -.5,
-
-        0,
-
-        Math.PI * 2
-
-      );
-
-
-      ctx.fill();
-
-
-      ctx.restore();
-
-    }
-
-
-    /*
-      =====================================================
-      مار
-      =====================================================
-    */
-
-    function drawSnake() {
-
-      snake.forEach(
-        (part, index) => {
-
-          const x =
-            part.x * CELL;
-
-          const y =
-            part.y * CELL;
-
-          const padding = 1.5;
-
-          const radius = 6;
-
-
-          ctx.save();
-
-
-          if (index === 0) {
-
-            const gradient =
-              ctx.createLinearGradient(
-
-                x,
-                y,
-
-                x + CELL,
-                y + CELL
-
-              );
-
-
-            gradient.addColorStop(
-              0,
-              "#79a7ff"
-            );
-
-
-            gradient.addColorStop(
-              1,
-              "#5b75ff"
-            );
-
-
-            ctx.fillStyle =
-              gradient;
-
-
-            ctx.shadowBlur = 12;
-
-
-            ctx.shadowColor =
-              "rgba(90,120,255,.5)";
-
-
-          } else {
-
-            ctx.fillStyle =
-              "#4d67d9";
-
-          }
-
-
-          roundRect(
-
-            ctx,
-
-            x + padding,
-
-            y + padding,
-
-            CELL -
-              padding * 2,
-
-            CELL -
-              padding * 2,
-
-            radius
-
-          );
-
-
-          ctx.fill();
-
-
-          ctx.restore();
-
-
-          if (index === 0) {
-
-            drawEyes(
-              x,
-              y
-            );
-
-          }
-
-        }
-      );
-
-    }
-
-
-    /*
-      =====================================================
-      چشم‌ها
-      =====================================================
-    */
-
-    function drawEyes(
-      x,
-      y
-    ) {
-
-      const centerX =
-        x + CELL / 2;
-
-
-      const centerY =
-        y + CELL / 2;
-
-
-      let eye1;
-
-      let eye2;
-
-
-      if (dir.x !== 0) {
-
-        const frontX =
-          centerX +
-          dir.x * 4;
-
-
-        eye1 = {
-
-          x: frontX,
-
-          y:
-            centerY - 4
-
-        };
-
-
-        eye2 = {
-
-          x: frontX,
-
-          y:
-            centerY + 4
-
-        };
-
-
-      } else {
-
-        const frontY =
-          centerY +
-          dir.y * 4;
-
-
-        eye1 = {
-
-          x:
-            centerX - 4,
-
-          y: frontY
-
-        };
-
-
-        eye2 = {
-
-          x:
-            centerX + 4,
-
-          y: frontY
-
-        };
+        ctx.fill();
 
       }
 
 
+      if(i === 0){
+
+        drawEyes(
+          x,
+          y
+        );
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   مستطیل گرد
+========================================================= */
+
+function roundRect(
+  context,
+  x,
+  y,
+  width,
+  height,
+  radius
+){
+
+  context.beginPath();
+
+
+  context.roundRect(
+    x,
+    y,
+    width,
+    height,
+    radius
+  );
+
+}
+
+
+/* =========================================================
+   چشم‌ها
+========================================================= */
+
+function drawEyes(
+  x,
+  y
+){
+
+  let positions;
+
+
+  if(dir.x === 1){
+
+    positions = [
+
+      [
+        x + CELL * .68,
+        y + CELL * .32
+      ],
+
+      [
+        x + CELL * .68,
+        y + CELL * .68
+      ]
+
+    ];
+
+  }else if(dir.x === -1){
+
+    positions = [
+
+      [
+        x + CELL * .32,
+        y + CELL * .32
+      ],
+
+      [
+        x + CELL * .32,
+        y + CELL * .68
+      ]
+
+    ];
+
+  }else if(dir.y === -1){
+
+    positions = [
+
+      [
+        x + CELL * .32,
+        y + CELL * .32
+      ],
+
+      [
+        x + CELL * .68,
+        y + CELL * .32
+      ]
+
+    ];
+
+  }else{
+
+    positions = [
+
+      [
+        x + CELL * .32,
+        y + CELL * .68
+      ],
+
+      [
+        x + CELL * .68,
+        y + CELL * .68
+      ]
+
+    ];
+
+  }
+
+
+  positions.forEach(
+    ([ex,ey]) => {
+
       ctx.fillStyle =
-        "#fff";
+        "#ffffff";
 
 
       ctx.beginPath();
 
 
       ctx.arc(
-
-        eye1.x,
-
-        eye1.y,
-
-        2.2,
-
+        ex,
+        ey,
+        2.8,
         0,
-
         Math.PI * 2
-
-      );
-
-
-      ctx.arc(
-
-        eye2.x,
-
-        eye2.y,
-
-        2.2,
-
-        0,
-
-        Math.PI * 2
-
       );
 
 
@@ -1736,516 +1594,912 @@
 
 
       ctx.fillStyle =
-        "#111";
+        "#07100b";
 
 
       ctx.beginPath();
 
 
       ctx.arc(
-
-        eye1.x,
-
-        eye1.y,
-
-        .9,
-
+        ex + dir.x * .7,
+        ey + dir.y * .7,
+        1.35,
         0,
-
         Math.PI * 2
-
-      );
-
-
-      ctx.arc(
-
-        eye2.x,
-
-        eye2.y,
-
-        .9,
-
-        0,
-
-        Math.PI * 2
-
       );
 
 
       ctx.fill();
 
     }
+  );
+
+}
 
 
-    /*
-      =====================================================
-      ذرات
-      =====================================================
-    */
+/* =========================================================
+   ذرات
+========================================================= */
 
-    function drawParticles() {
+function drawParticles(){
 
-      particles.forEach(
-        particle => {
+  particles.forEach(
+    p => {
 
-          ctx.save();
-
-
-          ctx.globalAlpha =
-            Math.max(
-              0,
-              particle.life
-            );
+      ctx.globalAlpha =
+        Math.max(
+          0,
+          p.life
+        );
 
 
-          ctx.fillStyle =
-            "#78a1ff";
+      ctx.fillStyle =
+        "#72ffae";
 
 
-          ctx.beginPath();
+      ctx.beginPath();
 
 
-          ctx.arc(
-
-            particle.x,
-
-            particle.y,
-
-            2.2,
-
-            0,
-
-            Math.PI * 2
-
-          );
+      ctx.arc(
+        p.x,
+        p.y,
+        p.size * p.life,
+        0,
+        Math.PI * 2
+      );
 
 
-          ctx.fill();
+      ctx.fill();
+
+    }
+  );
 
 
-          ctx.restore();
+  ctx.globalAlpha = 1;
+
+}
+
+
+/* =========================================================
+   رندر
+========================================================= */
+
+function render(
+  time = performance.now()
+){
+
+  drawBackground();
+
+  drawFood(time);
+
+  drawSnake(time);
+
+  updateParticles();
+
+  drawParticles();
+
+
+  animationFrame =
+    requestAnimationFrame(
+      render
+    );
+
+}
+
+
+/* =========================================================
+   افزایش سرعت
+========================================================= */
+
+function increaseSpeed(){
+
+  if(done){
+    return;
+  }
+
+
+  if(speed <= MIN_SPEED){
+    return;
+  }
+
+
+  speed =
+    Math.max(
+      MIN_SPEED,
+      speed - SPEED_STEP
+    );
+
+
+  speedLevel++;
+
+
+  speedText.textContent =
+    (
+      START_SPEED / speed
+    ).toFixed(1) + "×";
+
+
+  clearInterval(
+    gameLoop
+  );
+
+
+  gameLoop =
+    setInterval(
+      tick,
+      speed
+    );
+
+
+  speedFlash.classList.remove(
+    "active"
+  );
+
+
+  void speedFlash.offsetWidth;
+
+
+  speedFlash.classList.add(
+    "active"
+  );
+
+
+  gameMessage.textContent =
+    "⚡ سرعت بیشتر شد!";
+
+
+  soundSpeedUp();
+
+
+  setTimeout(
+    () => {
+
+      if(!done){
+
+        gameMessage.textContent =
+          "حواست باشه! 🐍";
+
+      }
+
+    },
+    1300
+  );
+
+}
+
+
+/* =========================================================
+   حرکت
+========================================================= */
+
+function tick(){
+
+  if(done){
+    return;
+  }
+
+
+  dir = {
+    x:nextDir.x,
+    y:nextDir.y
+  };
+
+
+  const head = {
+
+    x:
+      snake[0].x +
+      dir.x,
+
+    y:
+      snake[0].y +
+      dir.y
+
+  };
+
+
+  if(
+    head.x < 0 ||
+    head.y < 0 ||
+    head.x >= GRID ||
+    head.y >= GRID
+  ){
+
+    gameOver();
+
+    return;
+
+  }
+
+
+  if(
+    snake.some(
+      s =>
+        s.x === head.x &&
+        s.y === head.y
+    )
+  ){
+
+    gameOver();
+
+    return;
+
+  }
+
+
+  snake.unshift(
+    head
+  );
+
+
+  if(
+    head.x === food.x &&
+    head.y === food.y
+  ){
+
+    score += FOOD_SCORE;
+
+
+    scoreText.textContent =
+      score;
+
+
+    if(score > highScore){
+
+      highScore =
+        score;
+
+
+      highScoreText.textContent =
+        highScore;
+
+
+      localStorage.setItem(
+        HIGH_SCORE_KEY,
+        String(highScore)
+      );
+
+    }
+
+
+    createFoodParticles();
+
+    soundFood();
+
+
+    food =
+      randomFood();
+
+
+    gameMessage.textContent =
+      "+10 امتیاز! 🍎";
+
+
+    setTimeout(
+      () => {
+
+        if(!done){
+
+          gameMessage.textContent =
+            "ادامه بده! 🐍";
 
         }
-      );
 
-    }
+      },
+      650
+    );
 
+  }else{
 
-    /*
-      =====================================================
-      Round Rect
-      =====================================================
-    */
+    snake.pop();
 
-    function roundRect(
+  }
 
-      context,
-
-      x,
-
-      y,
-
-      width,
-
-      height,
-
-      radius
-
-    ) {
-
-      context.beginPath();
+}
 
 
-      context.moveTo(
-        x + radius,
+/* =========================================================
+   تغییر جهت
+========================================================= */
+
+function setDir(
+  x,
+  y
+){
+
+  if(
+    dir.x === -x &&
+    dir.y === -y
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    nextDir.x === x &&
+    nextDir.y === y
+  ){
+
+    return;
+
+  }
+
+
+  nextDir = {
+    x,
+    y
+  };
+
+
+  soundTurn();
+
+}
+
+
+/* =========================================================
+   دکمه‌ها
+========================================================= */
+
+function bindButton(
+  selector,
+  x,
+  y
+){
+
+  const button =
+    document.querySelector(
+      selector
+    );
+
+
+  button.addEventListener(
+    "pointerdown",
+    e => {
+
+      e.preventDefault();
+
+
+      initAudio();
+
+
+      setDir(
+        x,
         y
       );
 
+    },
+    {
+      passive:false
+    }
+  );
 
-      context.arcTo(
+}
 
-        x + width,
-        y,
 
-        x + width,
-        y + height,
+bindButton(
+  ".dp-up",
+  0,
+  -1
+);
 
-        radius
 
+bindButton(
+  ".dp-down",
+  0,
+  1
+);
+
+
+bindButton(
+  ".dp-left",
+  -1,
+  0
+);
+
+
+bindButton(
+  ".dp-right",
+  1,
+  0
+);
+
+
+/* =========================================================
+   کیبورد
+========================================================= */
+
+document.addEventListener(
+  "keydown",
+  e => {
+
+    initAudio();
+
+
+    if(
+      e.key === "ArrowUp"
+    ){
+
+      e.preventDefault();
+
+      setDir(
+        0,
+        -1
       );
-
-
-      context.arcTo(
-
-        x + width,
-        y + height,
-
-        x,
-        y + height,
-
-        radius
-
-      );
-
-
-      context.arcTo(
-
-        x,
-        y + height,
-
-        x,
-        y,
-
-        radius
-
-      );
-
-
-      context.arcTo(
-
-        x,
-        y,
-
-        x + width,
-        y,
-
-        radius
-
-      );
-
-
-      context.closePath();
 
     }
 
 
-    /*
-      =====================================================
-      دکمه‌های کنترل
-      =====================================================
-    */
+    if(
+      e.key === "ArrowDown"
+    ){
 
-    document
-      .querySelectorAll(
-        ".snake-control"
+      e.preventDefault();
+
+      setDir(
+        0,
+        1
+      );
+
+    }
+
+
+    if(
+      e.key === "ArrowLeft"
+    ){
+
+      e.preventDefault();
+
+      setDir(
+        -1,
+        0
+      );
+
+    }
+
+
+    if(
+      e.key === "ArrowRight"
+    ){
+
+      e.preventDefault();
+
+      setDir(
+        1,
+        0
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   Swipe موبایل
+========================================================= */
+
+let touchStartX = 0;
+
+let touchStartY = 0;
+
+
+canvas.addEventListener(
+  "touchstart",
+  e => {
+
+    initAudio();
+
+
+    if(!e.touches.length){
+      return;
+    }
+
+
+    const t =
+      e.touches[0];
+
+
+    touchStartX =
+      t.clientX;
+
+
+    touchStartY =
+      t.clientY;
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+canvas.addEventListener(
+  "touchend",
+  e => {
+
+    if(!e.changedTouches.length){
+      return;
+    }
+
+
+    const t =
+      e.changedTouches[0];
+
+
+    const dx =
+      t.clientX -
+      touchStartX;
+
+
+    const dy =
+      t.clientY -
+      touchStartY;
+
+
+    const absX =
+      Math.abs(dx);
+
+
+    const absY =
+      Math.abs(dy);
+
+
+    if(
+      Math.max(
+        absX,
+        absY
+      ) < 25
+    ){
+
+      return;
+
+    }
+
+
+    if(absX > absY){
+
+      if(dx > 0){
+
+        setDir(
+          1,
+          0
+        );
+
+      }else{
+
+        setDir(
+          -1,
+          0
+        );
+
+      }
+
+    }else{
+
+      if(dy > 0){
+
+        setDir(
+          0,
+          1
+        );
+
+      }else{
+
+        setDir(
+          0,
+          -1
+        );
+
+      }
+
+    }
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+/* =========================================================
+   Game Over
+========================================================= */
+
+async function gameOver(){
+
+  if(done){
+    return;
+  }
+
+
+  done = true;
+
+
+  clearInterval(
+    gameLoop
+  );
+
+
+  clearInterval(
+    speedTimer
+  );
+
+
+  cancelAnimationFrame(
+    animationFrame
+  );
+
+
+  soundGameOver();
+
+
+  snakeWrap.classList.add(
+    "shake"
+  );
+
+
+  /*
+     ذرات برخورد
+  */
+
+  for(
+    let i = 0;
+    i < 25;
+    i++
+  ){
+
+    const head =
+      snake[0];
+
+
+    particles.push({
+
+      x:
+        head.x * CELL +
+        CELL / 2,
+
+      y:
+        head.y * CELL +
+        CELL / 2,
+
+      vx:
+        (Math.random() - .5) * 5,
+
+      vy:
+        (Math.random() - .5) * 5,
+
+      life:1,
+
+      size:
+        2 +
+        Math.random() * 3
+
+    });
+
+  }
+
+
+  gameMessage.textContent =
+    "💥 بازی تمام شد!";
+
+
+  await new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        450
       )
-      .forEach(
-        button => {
-
-          button.addEventListener(
-            "pointerdown",
-            event => {
-
-              event.preventDefault();
+  );
 
 
-              const direction =
-                button.dataset.dir;
+  finishSolo(
+    score
+  );
+
+}
 
 
-              if (
-                direction === "up"
-              ) {
+/* =========================================================
+   نتیجه تک‌نفره Pocket
+========================================================= */
 
-                setDirection(
-                  0,
-                  -1
-                );
+function finishSolo(
+  finalScore
+){
 
-              }
-
-
-              if (
-                direction === "down"
-              ) {
-
-                setDirection(
-                  0,
-                  1
-                );
-
-              }
+  document.getElementById(
+    "playArea"
+  ).style.display =
+    "none";
 
 
-              if (
-                direction === "left"
-              ) {
-
-                setDirection(
-                  -1,
-                  0
-                );
-
-              }
-
-
-              if (
-                direction === "right"
-              ) {
-
-                setDirection(
-                  1,
-                  0
-                );
-
-              }
-
-            }
-          );
-
-        }
-      );
-
-
-    /*
-      =====================================================
-      کیبورد
-      =====================================================
-    */
-
-    document.addEventListener(
-      "keydown",
-      event => {
-
-        switch (event.key) {
-
-          case "ArrowUp":
-          case "w":
-          case "W":
-
-            event.preventDefault();
-
-            setDirection(
-              0,
-              -1
-            );
-
-            break;
-
-
-          case "ArrowDown":
-          case "s":
-          case "S":
-
-            event.preventDefault();
-
-            setDirection(
-              0,
-              1
-            );
-
-            break;
-
-
-          case "ArrowLeft":
-          case "a":
-          case "A":
-
-            event.preventDefault();
-
-            setDirection(
-              -1,
-              0
-            );
-
-            break;
-
-
-          case "ArrowRight":
-          case "d":
-          case "D":
-
-            event.preventDefault();
-
-            setDirection(
-              1,
-              0
-            );
-
-            break;
-
-        }
-
-      }
+  const scoreArea =
+    document.getElementById(
+      "scoreArea"
     );
 
 
-    /*
-      =====================================================
-      لمس / Swipe
-      =====================================================
-    */
-
-    canvas.addEventListener(
-      "touchstart",
-      event => {
-
-        if (
-          !event.touches.length
-        ) {
-          return;
-        }
+  scoreArea.style.display =
+    "block";
 
 
-        touchStartX =
-          event.touches[0].clientX;
-
-
-        touchStartY =
-          event.touches[0].clientY;
-
-      },
-      {
-        passive: true
-      }
+  const soloResult =
+    document.getElementById(
+      "soloResult"
     );
 
 
-    canvas.addEventListener(
-      "touchend",
-      event => {
-
-        if (
-          !event.changedTouches.length
-        ) {
-          return;
-        }
+  const isRecord =
+    finalScore === highScore &&
+    finalScore > 0;
 
 
-        const touch =
-          event.changedTouches[0];
+  soloResult.innerHTML = `
 
-
-        const dx =
-          touch.clientX -
-          touchStartX;
-
-
-        const dy =
-          touch.clientY -
-          touchStartY;
-
-
-        const distance =
-          Math.max(
-            Math.abs(dx),
-            Math.abs(dy)
-          );
-
-
-        if (distance < 25) {
-          return;
-        }
-
-
-        if (
-          Math.abs(dx) >
-          Math.abs(dy)
-        ) {
-
-          setDirection(
-
-            dx > 0
-              ? 1
-              : -1,
-
-            0
-
-          );
-
-        } else {
-
-          setDirection(
-
-            0,
-
-            dy > 0
-              ? 1
-              : -1
-
-          );
-
-        }
-
-      },
-      {
-        passive: true
+    <div class="big-emoji">
+      ${
+        isRecord
+          ? "🏆"
+          : "🐍"
       }
-    );
+    </div>
 
 
-    /*
-      =====================================================
-      شروع دوباره
-      =====================================================
-    */
+    <h2>
+      ${
+        isRecord
+          ? "رکورد جدید!"
+          : "بازی تمام شد"
+      }
+    </h2>
 
-    restartBtn.addEventListener(
+
+    <div class="score-big">
+      امتیاز: ${finalScore}
+    </div>
+
+
+    <div
+      style="
+        opacity:.65;
+        margin-bottom:18px;
+      "
+    >
+      بازیکن: ${escapeHtml(playerName)}
+    </div>
+
+
+    <button
+      id="restartGameBtn"
+      class="btn-full"
+    >
+      دوباره بازی کن 🐍
+    </button>
+
+
+    <a
+      href="../index.html"
+      class="btn-full btn-ghost"
+      style="
+        display:block;
+        text-decoration:none;
+        text-align:center;
+        margin-top:10px;
+      "
+    >
+      بازگشت به خانه
+    </a>
+
+  `;
+
+
+  document
+    .getElementById(
+      "restartGameBtn"
+    )
+    .addEventListener(
       "click",
       () => {
 
-        startGame();
+        location.reload();
 
       }
     );
 
-
-    /*
-      =====================================================
-      خانه
-      =====================================================
-    */
-
-    homeBtn.addEventListener(
-      "click",
-      () => {
-
-        clearInterval(
-          gameTimer
-        );
-
-        clearInterval(
-          speedTimer
-        );
+}
 
 
-        window.location.href =
-          "../index.html";
+/* =========================================================
+   جلوگیری از HTML ناخواسته در نام
+========================================================= */
 
-      }
+function escapeHtml(
+  value
+){
+
+  return String(value)
+    .replace(
+      /[&<>"']/g,
+      ch => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[ch])
     );
 
+}
 
-    /*
-      =====================================================
-      عدد فارسی
-      =====================================================
-    */
 
-    function toPersianNumber(
-      value
-    ) {
+/* =========================================================
+   شروع بازی
+========================================================= */
 
-      return String(value)
-        .replace(
-          /\d/g,
-          digit =>
-            "۰۱۲۳۴۵۶۷۸۹"[digit]
-        );
+function init(){
 
+  /*
+     فعال‌سازی صدا با اولین لمس
+  */
+
+  document.addEventListener(
+    "pointerdown",
+    initAudio,
+    {
+      once:true
     }
+  );
 
 
-    /*
-      =====================================================
-      شروع
-      =====================================================
-    */
+  /*
+     رندر دائمی
+  */
 
-    startGame();
+  render();
 
-  </script>
+
+  /*
+     صدای شروع
+  */
+
+  initAudio();
+
+  soundStart();
+
+
+  /*
+     حرکت مار
+  */
+
+  gameLoop =
+    setInterval(
+      tick,
+      speed
+    );
+
+
+  /*
+     افزایش سرعت
+  */
+
+  speedTimer =
+    setInterval(
+      increaseSpeed,
+      SPEED_INTERVAL
+    );
+
+}
+
+
+/* =========================================================
+   اجرا
+========================================================= */
+
+init();
+
+</script>
 
 </body>
-
   </html>
