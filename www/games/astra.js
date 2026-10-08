@@ -4,6 +4,13 @@ import {
 
 
 /* =========================================================
+   حالت بازی
+========================================================= */
+
+const isSolo = true;
+
+
+/* =========================================================
    تنظیمات
 ========================================================= */
 
@@ -113,8 +120,8 @@ let entitiesInitialized =
 let myColorIndex = 0;
 
 let myDock = {
-  x:0,
-  y:0
+  x: 0,
+  y: 0
 };
 
 let dockColor =
@@ -123,19 +130,19 @@ let dockColor =
 
 let me = {
 
-  x:0,
-  y:0,
+  x: 0,
+  y: 0,
 
   angle:
     -Math.PI / 2,
 
-  fuel:0,
+  fuel: 0,
 
-  cargo:0,
+  cargo: 0,
 
-  carrying:null,
+  carrying: null,
 
-  trail:[]
+  trail: []
 
 };
 
@@ -163,8 +170,8 @@ let myName =
   "";
 
 let joyVec = {
-  x:0,
-  y:0
+  x: 0,
+  y: 0
 };
 
 
@@ -391,9 +398,21 @@ function resizeCanvasResolution(){
         aiShip.dock
       ){
 
-        aiShip.dock.x *= rx;
+        /*
+         * dock ربات را دوباره بر اساس
+         * اندازه جدید محاسبه می‌کنیم.
+         */
 
-        aiShip.dock.y *= ry;
+        aiShip.dock = {
+
+          x:
+            W -
+            SHIP_R * 3,
+
+          y:
+            H / 2
+
+        };
 
       }
 
@@ -428,6 +447,30 @@ function resizeCanvasResolution(){
           )
         );
 
+
+      if(aiShip){
+
+        aiShip.x =
+          Math.max(
+            SHIP_R,
+            Math.min(
+              W - SHIP_R,
+              aiShip.x
+            )
+          );
+
+
+        aiShip.y =
+          Math.max(
+            SHIP_R,
+            Math.min(
+              H - SHIP_R,
+              aiShip.y
+            )
+          );
+
+      }
+
     }
 
   }
@@ -442,23 +485,23 @@ function resizeCanvasResolution(){
 const DOCK_SPOTS_FRACTIONS = [
 
   {
-    fx:0.12,
-    fy:0.25
+    fx: 0.12,
+    fy: 0.25
   },
 
   {
-    fx:0.88,
-    fy:0.25
+    fx: 0.88,
+    fy: 0.25
   },
 
   {
-    fx:0.12,
-    fy:0.75
+    fx: 0.12,
+    fy: 0.75
   },
 
   {
-    fx:0.88,
-    fy:0.75
+    fx: 0.88,
+    fy: 0.75
   }
 
 ];
@@ -596,7 +639,7 @@ function burstParticles(
         Math.sin(angle) *
         speed,
 
-      life:1,
+      life: 1,
 
       color
 
@@ -621,7 +664,7 @@ function addFloater(
 
     text,
 
-    life:1,
+    life: 1,
 
     color
 
@@ -923,14 +966,14 @@ function spawnLocalResource(){
         H - margin
       ),
 
-    spawnT:0,
+    spawnT: 0,
 
     pulse:
       Math.random() *
       Math.PI *
       2,
 
-    takenBy:null
+    takenBy: null
 
   });
 
@@ -947,39 +990,47 @@ function moveToward(
   dt
 ){
 
+  const dx =
+    target.x -
+    entity.x;
+
+  const dy =
+    target.y -
+    entity.y;
+
   const d =
-    dist(
-      entity,
-      target
-    ) || 1;
+    Math.hypot(
+      dx,
+      dy
+    );
+
+
+  if(d < 0.001){
+    return;
+  }
+
+
+  const speed =
+    BASE_SPEED *
+    0.92;
 
 
   entity.x +=
-    (
-      target.x -
-      entity.x
-    ) /
-    d *
-    BASE_SPEED *
+    (dx / d) *
+    speed *
     dt;
 
 
   entity.y +=
-    (
-      target.y -
-      entity.y
-    ) /
-    d *
-    BASE_SPEED *
+    (dy / d) *
+    speed *
     dt;
 
 
   entity.angle =
     Math.atan2(
-      target.y -
-        entity.y,
-      target.x -
-        entity.x
+      dy,
+      dx
     );
 
 }
@@ -1006,7 +1057,12 @@ function handleCarryLogic(
       DOCK_R
     ){
 
+      const rid =
+        ship.carrying;
+
+
       ship.cargo++;
+
 
       ship.fuel =
         Math.min(
@@ -1041,13 +1097,13 @@ function handleCarryLogic(
       );
 
 
-      const rid =
-        ship.carrying;
-
-
       ship.carrying =
         null;
 
+
+      /*
+       * منبع تحویل‌شده حذف شود.
+       */
 
       localResources =
         localResources.filter(
@@ -1102,12 +1158,14 @@ function handleCarryLogic(
 
 
 /* =========================================================
-   منطق تک‌نفره
+   منطق تک‌نفره + ربات
 ========================================================= */
 
-function soloTick(
-  dt
-){
+function soloTick(dt){
+
+  /* =====================================================
+     بازیکن
+  ===================================================== */
 
   handleCarryLogic(
     me,
@@ -1117,18 +1175,17 @@ function soloTick(
   );
 
 
-  /* -------------------------
+  /* =====================================================
      ربات
-  ------------------------- */
+  ===================================================== */
 
-  if(
-    aiShip &&
-    !aiShip.launched
-  ){
+  if(aiShip){
 
-    if(
-      aiShip.carrying
-    ){
+    /*
+     * ربات در حال حمل منبع است
+     */
+
+    if(aiShip.carrying){
 
       moveToward(
         aiShip,
@@ -1137,6 +1194,26 @@ function soloTick(
       );
 
 
+      aiShip.trail.push({
+        x: aiShip.x,
+        y: aiShip.y
+      });
+
+
+      if(
+        aiShip.trail.length >
+        12
+      ){
+
+        aiShip.trail.shift();
+
+      }
+
+
+      /*
+       * رسیدن ربات به پایگاه
+       */
+
       if(
         dist(
           aiShip,
@@ -1144,6 +1221,10 @@ function soloTick(
         ) <
         DOCK_R
       ){
+
+        const deliveredId =
+          aiShip.carrying;
+
 
         aiShip.cargo++;
 
@@ -1156,6 +1237,39 @@ function soloTick(
           );
 
 
+        addFloater(
+          aiShip.dock.x,
+          aiShip.dock.y,
+          "+سوخت",
+          "#9B5CFF"
+        );
+
+
+        burstParticles(
+          aiShip.dock.x,
+          aiShip.dock.y,
+          "#9B5CFF",
+          10
+        );
+
+
+        playTone(
+          620,
+          0.07
+        );
+
+
+        /*
+         * منبع تحویل‌شده حذف شود.
+         */
+
+        localResources =
+          localResources.filter(
+            r =>
+              r.id !== deliveredId
+          );
+
+
         aiShip.carrying =
           null;
 
@@ -1163,28 +1277,68 @@ function soloTick(
 
     }
 
+    /*
+     * ربات منبع ندارد
+     */
+
     else{
 
-      const target =
-        localResources
-          .filter(
-            r =>
-              !r.takenBy
-          )
-          .sort(
-            (a,b) =>
-              dist(
-                aiShip,
-                a
-              ) -
-              dist(
-                aiShip,
-                b
-              )
-          )[0];
+      const available =
+        localResources.filter(
+          r =>
+            !r.takenBy
+        );
 
 
-      if(target){
+      if(available.length){
+
+        /*
+         * نزدیک‌ترین منبع
+         */
+
+        let target =
+          available[0];
+
+
+        let bestDistance =
+          dist(
+            aiShip,
+            target
+          );
+
+
+        for(
+          let i = 1;
+          i < available.length;
+          i++
+        ){
+
+          const d =
+            dist(
+              aiShip,
+              available[i]
+            );
+
+
+          if(
+            d <
+            bestDistance
+          ){
+
+            bestDistance =
+              d;
+
+            target =
+              available[i];
+
+          }
+
+        }
+
+
+        /*
+         * حرکت به سمت منبع
+         */
 
         moveToward(
           aiShip,
@@ -1192,6 +1346,26 @@ function soloTick(
           dt
         );
 
+
+        aiShip.trail.push({
+          x: aiShip.x,
+          y: aiShip.y
+        });
+
+
+        if(
+          aiShip.trail.length >
+          12
+        ){
+
+          aiShip.trail.shift();
+
+        }
+
+
+        /*
+         * رسیدن به منبع
+         */
 
         if(
           dist(
@@ -1212,12 +1386,22 @@ function soloTick(
           aiShip.carrying =
             target.id;
 
+
+          playTone(
+            500,
+            0.06
+          );
+
         }
 
       }
 
     }
 
+
+    /*
+     * محدود کردن ربات داخل صفحه
+     */
 
     aiShip.x =
       Math.max(
@@ -1241,21 +1425,9 @@ function soloTick(
   }
 
 
-  /* منابع مصرف‌شده */
-
-  localResources =
-    localResources.filter(
-      r =>
-        !r.takenBy ||
-        r.takenBy === "player" ||
-        r.takenBy === "ai"
-    );
-
-
-  /*
-   * اگر منابع کم شدند،
-   * دوباره تولید کن.
-   */
+  /* =====================================================
+     بازتولید منابع
+  ===================================================== */
 
   while(
     localResources.length <
@@ -1267,7 +1439,9 @@ function soloTick(
   }
 
 
-  /* برد بازیکن */
+  /* =====================================================
+     برد بازیکن
+  ===================================================== */
 
   if(
     me.fuel >= 100 &&
@@ -1283,12 +1457,17 @@ function soloTick(
       true
     );
 
+    return;
+
   }
 
 
-  /* برد ربات */
+  /* =====================================================
+     برد ربات
+  ===================================================== */
 
   if(
+    aiShip &&
     aiShip.fuel >= 100 &&
     dist(
       aiShip,
@@ -1301,6 +1480,8 @@ function soloTick(
     finishRace(
       false
     );
+
+    return;
 
   }
 
@@ -1593,7 +1774,10 @@ function drawTrail(
       const a =
         (
           i /
-          trail.length
+          Math.max(
+            1,
+            trail.length
+          )
         ) *
         0.3;
 
@@ -1609,7 +1793,10 @@ function drawTrail(
             0.25 +
             (
               i /
-              trail.length
+              Math.max(
+                1,
+                trail.length
+              )
             ) *
             0.4
           ),
@@ -2046,6 +2233,10 @@ function draw(t){
   drawBackground(t);
 
 
+  /*
+   * پایگاه بازیکن
+   */
+
   drawDock(
     myDock,
     dockColor,
@@ -2053,43 +2244,51 @@ function draw(t){
   );
 
 
-  if(isSolo){
+  /*
+   * منابع
+   */
 
-    drawResources(
-      t,
-      localResources
+  drawResources(
+    t,
+    localResources
+  );
+
+
+  /*
+   * ربات
+   */
+
+  if(aiShip){
+
+    drawDock(
+      aiShip.dock,
+      "#9B5CFF",
+      aiShip.fuel >= 100
     );
 
 
-    if(aiShip){
-
-      drawDock(
-        aiShip.dock,
-        "#9B5CFF",
-        aiShip.fuel >= 100
-      );
+    drawTrail(
+      aiShip.trail || [],
+      "#9B5CFF"
+    );
 
 
-      drawTrail(
-        aiShip.trail || [],
-        "#9B5CFF"
-      );
-
-
-      drawRocket(
-        aiShip.x,
-        aiShip.y,
-        aiShip.angle,
-        "#9B5CFF",
-        "ربات",
-        aiShip.carrying,
-        false
-      );
-
-    }
+    drawRocket(
+      aiShip.x,
+      aiShip.y,
+      aiShip.angle,
+      "#9B5CFF",
+      "ربات",
+      aiShip.carrying,
+      false
+    );
 
   }
 
+
+  /*
+   * بازیکن
+   */
 
   drawTrail(
     me.trail,
@@ -2128,6 +2327,12 @@ function updateHudSolo(){
     me.cargo;
 
 
+  const aiFuel =
+    aiShip
+      ? aiShip.fuel
+      : 0;
+
+
   othersHud.innerHTML = `
 
     <div class="astra-hud-chip">
@@ -2144,7 +2349,7 @@ function updateHudSolo(){
         <div
           class="mini-fill"
           style="
-            width:${aiShip.fuel}%;
+            width:${aiFuel}%;
             background:#9B5CFF;
           "
         ></div>
@@ -2434,6 +2639,10 @@ async function startSolo(){
   computeDock();
 
 
+  /*
+   * بازیکن
+   */
+
   me = {
 
     x:
@@ -2442,18 +2651,24 @@ async function startSolo(){
     y:
       myDock.y,
 
-    angle:0,
+    angle: 0,
 
-    fuel:0,
+    fuel: 0,
 
-    cargo:0,
+    cargo: 0,
 
-    carrying:null,
+    carrying: null,
 
-    trail:[]
+    trail: []
 
   };
 
+
+  /*
+   * ربات
+   *
+   * از سمت راست میدان شروع می‌شود.
+   */
 
   aiShip = {
 
@@ -2467,15 +2682,15 @@ async function startSolo(){
     angle:
       Math.PI,
 
-    fuel:0,
+    fuel: 0,
 
-    cargo:0,
+    cargo: 0,
 
-    carrying:null,
+    carrying: null,
 
-    trail:[],
+    trail: [],
 
-    dock:{
+    dock: {
 
       x:
         W -
@@ -2486,10 +2701,14 @@ async function startSolo(){
 
     },
 
-    launched:false
+    launched: true
 
   };
 
+
+  /*
+   * منابع
+   */
 
   localResources = [];
 
@@ -2530,10 +2749,25 @@ async function startSolo(){
     null;
 
 
+  /*
+   * HUD اولیه
+   */
+
+  updateHudSolo();
+
+
+  /*
+   * شروع Loop
+   */
+
   requestAnimationFrame(
     loop
   );
 
+
+  /*
+   * شمارش معکوس
+   */
 
   await countdown();
 
@@ -2553,8 +2787,8 @@ function setupJoystick(
     false;
 
   let origin = {
-    x:0,
-    y:0
+    x: 0,
+    y: 0
   };
 
   let pointerId =
@@ -2637,8 +2871,8 @@ function setupJoystick(
     ){
 
       joyVec = {
-        x:0,
-        y:0
+        x: 0,
+        y: 0
       };
 
 
@@ -2709,8 +2943,8 @@ function setupJoystick(
 
 
     joyVec = {
-      x:0,
-      y:0
+      x: 0,
+      y: 0
     };
 
   }
@@ -3091,13 +3325,6 @@ async function init(){
 
 
   resizeCanvasResolution();
-
-
-  /*
-   * اگر صفحه عمودی باشد،
-   * بازی آماده است ولی تا چرخاندن گوشی
-   * شروع نمی‌شود.
-   */
 
 
   await startSolo();
