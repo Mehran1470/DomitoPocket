@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تست اتصال</title>
+<link rel="stylesheet" href="css/style.css">
+<meta name="theme-color" content="#0f111a">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="brand">
+    <h1>تست اتصال دو گوشی</h1>
+    <p>هر دو گوشی روی یک Wi-Fi یا هات‌اسپات باشند</p>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;gap:8px;">
+      <button id="tabHost" class="btn-full" style="margin:0;">میزبان</button>
+      <button id="tabGuest" class="btn-full btn-ghost" style="margin:0;">مهمان</button>
+    </div>
+  </div>
+
+  <!-- میزبان -->
+  <div class="card" id="hostBox">
+    <h2>میزبان</h2>
+    <button id="hMake" class="btn-full" style="margin-top:0;">۱. ساخت کد دعوت</button>
+    <div class="step">کد دعوت را برای مهمان بفرست:</div>
+    <textarea id="hOut" readonly></textarea>
+    <button id="hCopy" class="btn-full btn-ghost">کپی کد</button>
+    <div class="step">۲. جواب مهمان را اینجا بچسبان:</div>
+    <textarea id="hIn"></textarea>
+    <button id="hGo" class="btn-full">۳. اتصال</button>
+  </div>
+
+  <!-- مهمان -->
+  <div class="card" id="guestBox" style="display:none">
+    <h2>مهمان</h2>
+    <div class="step">۱. کد دعوت میزبان را بچسبان:</div>
+    <textarea id="gIn"></textarea>
+    <button id="gMake" class="btn-full">۲. ساخت جواب</button>
+    <div class="step">جواب را برای میزبان بفرست:</div>
+    <textarea id="gOut" readonly></textarea>
+    <button id="gCopy" class="btn-full btn-ghost">کپی جواب</button>
+  </div>
+
+  <div class="card">
+    <h2>وضعیت</h2>
+    <p class="status-line" id="status">هنوز اتصالی نیست</p>
+    <p class="status-line" id="diag"></p>
+    <div class="chat-log" id="log"></div>
+    <div class="chat-row">
+      <input type="text" id="msg" placeholder="پیام تست" disabled>
+      <button id="send" disabled>ارسال</button>
+    </div>
+  </div>
+
+  <a class="link-back" href="index.html">بازگشت</a>
+</div>
+
+<script type="module">
+import { hostInvite, hostAccept, guestJoin, describeCandidates } from './js/net.js';
+
+const $ = id => document.getElementById(id);
+let link = null;
+
+function setStatus(t) { $('status').textContent = t; }
+
+function showDiag(pc) {
+  const d = describeCandidates(pc);
+  const ok = d.count > 0 && !d.mdns;
+  $('diag').innerHTML =
+    `آدرس‌های پیدا شده: ${d.count} ` +
+    (d.mdns ? '<span class="dot-bad">(آدرس .local، ممکن است وصل نشود)</span>'
+            : d.count ? '<span class="dot-ok">(آدرس واقعی ✓)</span>'
+                      : '<span class="dot-bad">(هیچ آدرسی نیست)</span>') +
+    (d.ips.length ? '<br>' + d.ips.join(' ، ') : '');
+}
+
+function addLog(who, text, me) {
+  const row = document.createElement('div');
+  row.className = 'chat-msg' + (me ? ' me' : '');
+  row.innerHTML = `<span class="chat-name"></span><span class="t"></span>`;
+  row.querySelector('.chat-name').textContent = who;
+  row.querySelector('.t').textContent = text;
+  $('log').appendChild(row);
+  $('log').scrollTop = 1e9;
+}
+
+function wire(l) {
+  link = l;
+  l.onopen = () => {
+    setStatus('✅ وصل شدید!');
+    $('msg').disabled = false;
+    $('send').disabled = false;
+  };
+  l.onclose = s => {
+    setStatus('❌ اتصال قطع شد (' + s + ')');
+    $('msg').disabled = true;
+    $('send').disabled = true;
+  };
+  l.onmessage = m => addLog('طرف مقابل', m && m.text != null ? m.text : String(m), false);
+}
+
+async function copy(id) {
+  const el = $(id);
+  try { await navigator.clipboard.writeText(el.value); }
+  catch (e) { el.select(); document.execCommand('copy'); }
+  setStatus('کپی شد');
+}
+
+function tab(host) {
+  $('hostBox').style.display = host ? 'block' : 'none';
+  $('guestBox').style.display = host ? 'none' : 'block';
+  $('tabHost').classList.toggle('btn-ghost', !host);
+  $('tabGuest').classList.toggle('btn-ghost', host);
+}
+$('tabHost').onclick = () => tab(true);
+$('tabGuest').onclick = () => tab(false);
+tab(location.hash !== '#guest');
+
+$('hMake').onclick = async () => {
+  setStatus('در حال ساخت کد...');
+  try {
+    const r = await hostInvite();
+    wire(r.link);
+    $('hOut').value = r.code;
+    showDiag(r.link.pc);
+    setStatus('کد آماده است؛ برای مهمان بفرست');
+  } catch (e) { setStatus('خطا: ' + e.message); }
+};
+$('hCopy').onclick = () => copy('hOut');
+$('hGo').onclick = async () => {
+  if (!link) { setStatus('اول کد دعوت بساز'); return; }
+  setStatus('در حال اتصال...');
+  try { await hostAccept(link, $('hIn').value); }
+  catch (e) { setStatus('خطا: ' + e.message); }
+};
+
+$('gMake').onclick = async () => {
+  setStatus('در حال ساخت جواب...');
+  try {
+    const r = await guestJoin($('gIn').value);
+    wire(r.link);
+    $('gOut').value = r.code;
+    showDiag(r.link.pc);
+    setStatus('جواب آماده است؛ برای میزبان بفرست');
+  } catch (e) { setStatus('خطا: ' + e.message); }
+};
+$('gCopy').onclick = () => copy('gOut');
+
+$('send').onclick = () => {
+  const t = $('msg').value.trim();
+  if (!t || !link) return;
+  if (link.send({ text: t })) { addLog('من', t, true); $('msg').value = ''; }
+};
+$('msg').addEventListener('keydown', e => { if (e.key === 'Enter') $('send').click(); });
+</script>
+</body>
+</html>
