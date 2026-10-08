@@ -390,58 +390,30 @@ button:active{
 
 </head>
 
-
 <body>
 
-
 <div id="gameWrap">
-
 
   <div class="topbar">
 
     <div class="stat">
-
-      <b id="score">
-        0
-      </b>
-
-      <span>
-        امتیاز
-      </span>
-
+      <b id="score">0</b>
+      <span>امتیاز</span>
     </div>
 
-
     <div class="stat">
-
-      <b id="lives">
-        🔰🔰🔰
-      </b>
-
-      <span>
-       HP
-      </span>
-
+      <b id="lives">🔰🔰🔰</b>
+      <span>HP</span>
     </div>
 
-
     <div class="stat">
-
-      <b id="highScore">
-        0
-      </b>
-
-      <span>
-        رکورد
-      </span>
-
+      <b id="highScore">0</b>
+      <span>رکورد</span>
     </div>
 
   </div>
 
-
   <div id="canvasBox">
-
 
     <canvas
       id="game"
@@ -449,15 +421,9 @@ button:active{
       height="500"
     ></canvas>
 
-
     <div id="levelInfo">
-
-      <span id="levelText">
-        مرحله ۱
-      </span>
-
+      <span id="levelText">مرحله ۱</span>
     </div>
-
 
     <div id="overlay">
 
@@ -486,14 +452,11 @@ button:active{
 
     </div>
 
-
     <div id="roomResults">
 
       <div class="resultsBox">
 
-        <h2>
-          🏆 نتیجه بازی
-        </h2>
+        <h2>🏆 نتیجه بازی</h2>
 
         <div id="resultsList"></div>
 
@@ -504,11 +467,6 @@ button:active{
       </div>
 
     </div>
-
-
-    <!-- =====================================================
-         پنل اتصال Pocket
-    ====================================================== -->
 
     <div id="networkPanel">
 
@@ -521,7 +479,6 @@ button:active{
         <p id="networkDescription">
           دو گوشی را به یک Wi-Fi یا هات‌اسپات وصل کنید.
         </p>
-
 
         <label
           class="nameLabel"
@@ -538,11 +495,7 @@ button:active{
           placeholder="نام بازیکن"
         >
 
-
-        <div
-          id="hostArea"
-          class="hidden"
-        >
+        <div id="hostArea" class="hidden">
 
           <div class="networkCodeLabel">
             کد دعوت را برای گوشی مهمان بفرست:
@@ -574,11 +527,7 @@ button:active{
 
         </div>
 
-
-        <div
-          id="guestArea"
-          class="hidden"
-        >
+        <div id="guestArea" class="hidden">
 
           <div class="networkCodeLabel">
             کد دعوت میزبان:
@@ -587,13 +536,12 @@ button:active{
           <textarea
             id="offerInput"
             spellcheck="false"
-            placeholder="کد دعوت را اینجا وارد کن..."
+            placeholder="کد دعوت میزبان را اینجا وارد کن..."
           ></textarea>
 
           <button id="makeAnswer">
             ساخت کد اتصال
           </button>
-
 
           <div
             id="answerArea"
@@ -618,7 +566,6 @@ button:active{
 
         </div>
 
-
         <div
           id="networkStatus"
           class="networkStatus"
@@ -626,9 +573,7 @@ button:active{
           آماده اتصال
         </div>
 
-
         <div id="waitingText"></div>
-
 
         <button
           id="networkClose"
@@ -641,22 +586,15 @@ button:active{
 
     </div>
 
-
   </div>
-
 
   <div id="progressWrap">
-
     <div id="progress"></div>
-
   </div>
-
 
 </div>
 
-
 <script type="module">
-
 
 /* =========================================================
    Pocket imports
@@ -666,7 +604,6 @@ import {
   getSavedName,
   saveName
 } from "../js/store.js";
-
 
 import {
   hostInvite,
@@ -682,70 +619,53 @@ import {
 const GAME_ID =
   "reaction";
 
-
 const canvas =
   document.getElementById("game");
-
 
 const ctx =
   canvas.getContext("2d");
 
-
 const W =
   canvas.width;
-
 
 const H =
   canvas.height;
 
-
 const scoreEl =
   document.getElementById("score");
-
 
 const livesEl =
   document.getElementById("lives");
 
-
 const highScoreEl =
   document.getElementById("highScore");
-
 
 const overlay =
   document.getElementById("overlay");
 
-
 const overlayTitle =
   document.getElementById("overlayTitle");
-
 
 const overlayText =
   document.getElementById("overlayText");
 
-
 const mainBtn =
   document.getElementById("mainBtn");
-
 
 const restartBtn =
   document.getElementById("restartBtn");
 
-
 const levelText =
   document.getElementById("levelText");
-
 
 const progress =
   document.getElementById("progress");
 
-
 const roomResults =
   document.getElementById("roomResults");
 
-
 const resultsList =
   document.getElementById("resultsList");
-
 
 const resultClose =
   document.getElementById("resultClose");
@@ -758,70 +678,53 @@ const resultClose =
 const networkPanel =
   document.getElementById("networkPanel");
 
-
 const networkTitle =
   document.getElementById("networkTitle");
-
 
 const networkDescription =
   document.getElementById("networkDescription");
 
-
 const networkName =
   document.getElementById("networkName");
-
 
 const hostArea =
   document.getElementById("hostArea");
 
-
 const guestArea =
   document.getElementById("guestArea");
-
 
 const offerCode =
   document.getElementById("offerCode");
 
-
 const answerInput =
   document.getElementById("answerInput");
-
 
 const offerInput =
   document.getElementById("offerInput");
 
-
 const answerCode =
   document.getElementById("answerCode");
-
 
 const answerArea =
   document.getElementById("answerArea");
 
-
 const acceptAnswer =
   document.getElementById("acceptAnswer");
-
 
 const makeAnswer =
   document.getElementById("makeAnswer");
 
-
 const copyOffer =
   document.getElementById("copyOffer");
-
 
 const copyAnswer =
   document.getElementById("copyAnswer");
 
-
 const networkStatus =
   document.getElementById("networkStatus");
 
-
 const waitingText =
   document.getElementById("waitingText");
-
 
 const networkClose =
   document.getElementById("networkClose");
@@ -836,23 +739,6 @@ const params =
     location.search
   );
 
-
-/*
-   حالت‌ها:
-
-   ?solo=1
-   تک نفره
-
-   ?host=1
-   میزبان
-
-   ?guest=1
-   مهمان
-
-   اگر هیچ‌کدام نباشد:
-   تک‌نفره
-*/
-
 const isSolo =
   params.has("solo") ||
   (
@@ -860,10 +746,8 @@ const isSolo =
     !params.has("guest")
   );
 
-
 const isHost =
   params.has("host");
-
 
 const isGuest =
   params.has("guest");
@@ -872,10 +756,8 @@ const isGuest =
 let link =
   null;
 
-
 let networkReady =
   isSolo;
-
 
 let networkRole =
   isHost
@@ -884,23 +766,18 @@ let networkRole =
       ? "guest"
       : "solo";
 
-
 let myName =
   getSavedName() ||
   "بازیکن";
 
-
 let opponentName =
   "بازیکن دوم";
-
 
 let myResult =
   null;
 
-
 let opponentResult =
   null;
-
 
 let waitingForOpponent =
   false;
@@ -962,42 +839,32 @@ const levels = [
 let running =
   false;
 
-
 let roundFinished =
   false;
-
 
 let resultSubmitted =
   false;
 
-
 let scoreboardShown =
   false;
-
 
 let currentLevel =
   0;
 
-
 let score =
   0;
-
 
 let lives =
   3;
 
-
 let baseSpeed =
   3.8;
-
 
 let animId =
   null;
 
-
 let framePending =
   false;
-
 
 let lastFrameTime =
   0;
@@ -1090,7 +957,6 @@ function sound(
 
     }
 
-
     if(
       audioCtx.state ===
       "suspended"
@@ -1100,46 +966,36 @@ function sound(
 
     }
 
-
     const osc =
       audioCtx.createOscillator();
-
 
     const gain =
       audioCtx.createGain();
 
-
     osc.frequency.value =
       freq;
-
 
     osc.type =
       "sine";
 
-
     gain.gain.value =
       .035;
-
 
     osc.connect(
       gain
     );
 
-
     gain.connect(
       audioCtx.destination
     );
 
-
     osc.start();
-
 
     gain.gain.exponentialRampToValueAtTime(
       .001,
       audioCtx.currentTime +
       duration
     );
-
 
     osc.stop(
       audioCtx.currentTime +
@@ -1159,26 +1015,20 @@ function createBricks(){
 
   bricks = [];
 
-
   const level =
     levels[currentLevel];
-
 
   const rows =
     level.rows;
 
-
   const cols =
     level.cols;
-
 
   const gap =
     5;
 
-
   const side =
     18;
-
 
   const brickWidth =
     (
@@ -1187,10 +1037,8 @@ function createBricks(){
       gap * (cols - 1)
     ) / cols;
 
-
   const brickHeight =
     18;
-
 
   for(
     let r = 0;
@@ -1255,10 +1103,8 @@ function resetBall(){
   ball.x =
     W / 2;
 
-
   ball.y =
     H - 75;
-
 
   const angle =
     (
@@ -1266,23 +1112,115 @@ function resetBall(){
       .29
     ) * Math.PI;
 
-
   const direction =
     Math.random() < .5
       ? -1
       : 1;
-
 
   ball.dx =
     Math.cos(angle) *
     baseSpeed *
     direction;
 
-
   ball.dy =
     -Math.abs(
       Math.sin(angle) *
       baseSpeed
+    );
+
+  ensureBallVelocity();
+
+}
+
+
+/* =========================================================
+   جلوگیری از سرعت خراب توپ
+========================================================= */
+
+function ensureBallVelocity(){
+
+  if(
+    !Number.isFinite(ball.dx) ||
+    !Number.isFinite(ball.dy)
+  ){
+
+    resetBallSafe();
+    return;
+
+  }
+
+  const speed =
+    Math.hypot(
+      ball.dx,
+      ball.dy
+    );
+
+  if(
+    !Number.isFinite(speed) ||
+    speed < 0.5
+  ){
+
+    let direction =
+      ball.dx >= 0
+        ? 1
+        : -1;
+
+    if(
+      !Number.isFinite(direction)
+    ){
+
+      direction =
+        1;
+
+    }
+
+    ball.dx =
+      baseSpeed *
+      .55 *
+      direction;
+
+    ball.dy =
+      -Math.sqrt(
+        Math.max(
+          .5,
+          baseSpeed *
+          baseSpeed -
+          ball.dx *
+          ball.dx
+        )
+      );
+
+  }
+
+}
+
+
+/*
+ * نسخه امن برای جلوگیری از
+ * بازگشت بازگشتی resetBall
+ */
+
+function resetBallSafe(){
+
+  ball.x =
+    W / 2;
+
+  ball.y =
+    H - 75;
+
+  ball.dx =
+    baseSpeed *
+    .65;
+
+  ball.dy =
+    -Math.sqrt(
+      Math.max(
+        .5,
+        baseSpeed *
+        baseSpeed -
+        ball.dx *
+        ball.dx
+      )
     );
 
 }
@@ -1297,29 +1235,22 @@ function startLevel(){
   const level =
     levels[currentLevel];
 
-
   baseSpeed =
     level.speed;
-
 
   levelText.textContent =
     `${level.name} — ${level.desc}`;
 
-
   createBricks();
-
 
   particles = [];
 
   trail = [];
 
-
   paddle.x =
     (W - paddle.width) / 2;
 
-
   resetBall();
-
 
   updateProgress();
 
@@ -1347,12 +1278,10 @@ function makeParticles(
       Math.PI *
       2;
 
-
     const speed =
       40 +
       Math.random() *
       100;
-
 
     particles.push({
 
@@ -1398,26 +1327,21 @@ function updateParticles(
     const p =
       particles[i];
 
-
     p.x +=
       p.dx *
       dtSec;
-
 
     p.y +=
       p.dy *
       dtSec;
 
-
     p.dy +=
       120 *
       dtSec;
 
-
     p.life -=
       dtSec *
       2.4;
-
 
     if(
       p.life <= 0
@@ -1444,12 +1368,10 @@ function updateProgress(){
   const total =
     bricks.length;
 
-
   const destroyed =
     bricks.filter(
       b => !b.alive
     ).length;
-
 
   const percent =
     total > 0
@@ -1457,7 +1379,6 @@ function updateProgress(){
         total *
         100
       : 0;
-
 
   progress.style.width =
     `${percent}%`;
@@ -1479,22 +1400,18 @@ function drawBackground(){
       H
     );
 
-
   gradient.addColorStop(
     0,
     "#08182d"
   );
-
 
   gradient.addColorStop(
     1,
     "#040a14"
   );
 
-
   ctx.fillStyle =
     gradient;
-
 
   ctx.fillRect(
     0,
@@ -1503,17 +1420,13 @@ function drawBackground(){
     H
   );
 
-
   ctx.save();
-
 
   ctx.globalAlpha =
     .05;
 
-
   ctx.strokeStyle =
     "#fff";
-
 
   for(
     let x = 0;
@@ -1537,7 +1450,6 @@ function drawBackground(){
 
   }
 
-
   for(
     let y = 0;
     y < H;
@@ -1560,7 +1472,6 @@ function drawBackground(){
 
   }
 
-
   ctx.restore();
 
 }
@@ -1579,9 +1490,7 @@ function drawBricks(){
     if(!b.alive)
       continue;
 
-
     ctx.save();
-
 
     const gradient =
       ctx.createLinearGradient(
@@ -1591,25 +1500,20 @@ function drawBricks(){
         b.y + b.h
       );
 
-
     gradient.addColorStop(
       0,
       `hsla(${b.hue},90%,68%,1)`
     );
-
 
     gradient.addColorStop(
       1,
       `hsla(${b.hue},75%,42%,1)`
     );
 
-
     ctx.fillStyle =
       gradient;
 
-
     ctx.beginPath();
-
 
     ctx.roundRect(
       b.x,
@@ -1619,16 +1523,12 @@ function drawBricks(){
       5
     );
 
-
     ctx.fill();
-
 
     ctx.strokeStyle =
       "rgba(255,255,255,.16)";
 
-
     ctx.stroke();
-
 
     ctx.restore();
 
@@ -1645,7 +1545,6 @@ function drawPaddle(){
 
   ctx.save();
 
-
   const gradient =
     ctx.createLinearGradient(
       paddle.x,
@@ -1655,39 +1554,31 @@ function drawPaddle(){
       paddle.height
     );
 
-
   gradient.addColorStop(
     0,
     "#ffffff"
   );
-
 
   gradient.addColorStop(
     .3,
     "#8bb7ff"
   );
 
-
   gradient.addColorStop(
     1,
     "#4a72ff"
   );
 
-
   ctx.fillStyle =
     gradient;
-
 
   ctx.shadowColor =
     "rgba(70,130,255,.8)";
 
-
   ctx.shadowBlur =
     14;
 
-
   ctx.beginPath();
-
 
   ctx.roundRect(
     paddle.x,
@@ -1697,9 +1588,7 @@ function drawPaddle(){
     7
   );
 
-
   ctx.fill();
-
 
   ctx.restore();
 
@@ -1721,9 +1610,7 @@ function drawBall(){
     const t =
       trail[i];
 
-
     ctx.save();
-
 
     ctx.globalAlpha =
       Math.max(
@@ -1731,13 +1618,10 @@ function drawBall(){
         t.life
       ) * .35;
 
-
     ctx.fillStyle =
       "#ffffff";
 
-
     ctx.beginPath();
-
 
     ctx.arc(
       t.x,
@@ -1752,25 +1636,19 @@ function drawBall(){
       Math.PI * 2
     );
 
-
     ctx.fill();
-
 
     ctx.restore();
 
   }
 
-
   ctx.save();
-
 
   ctx.shadowColor =
     "#7db3ff";
 
-
   ctx.shadowBlur =
     18;
-
 
   const gradient =
     ctx.createRadialGradient(
@@ -1782,31 +1660,25 @@ function drawBall(){
       ball.r
     );
 
-
   gradient.addColorStop(
     0,
     "#ffffff"
   );
-
 
   gradient.addColorStop(
     .4,
     "#c9e0ff"
   );
 
-
   gradient.addColorStop(
     1,
     "#5790ff"
   );
 
-
   ctx.fillStyle =
     gradient;
 
-
   ctx.beginPath();
-
 
   ctx.arc(
     ball.x,
@@ -1816,9 +1688,7 @@ function drawBall(){
     Math.PI * 2
   );
 
-
   ctx.fill();
-
 
   ctx.restore();
 
@@ -1837,20 +1707,16 @@ function drawParticles(){
 
     ctx.save();
 
-
     ctx.globalAlpha =
       Math.max(
         0,
         p.life
       );
 
-
     ctx.fillStyle =
       "#ffffff";
 
-
     ctx.beginPath();
-
 
     ctx.arc(
       p.x,
@@ -1860,9 +1726,7 @@ function drawParticles(){
       Math.PI * 2
     );
 
-
     ctx.fill();
-
 
     ctx.restore();
 
@@ -1899,14 +1763,11 @@ function scheduleUpdate(){
   if(!running)
     return;
 
-
   if(framePending)
     return;
 
-
   framePending =
     true;
-
 
   animId =
     requestAnimationFrame(
@@ -1932,14 +1793,11 @@ function stopLoop(){
 
   }
 
-
   animId =
     null;
 
-
   framePending =
     false;
-
 
   lastFrameTime =
     0;
@@ -1958,14 +1816,11 @@ function update(
   framePending =
     false;
 
-
   animId =
     null;
 
-
   if(!running)
     return;
-
 
   if(!lastFrameTime){
 
@@ -1974,15 +1829,12 @@ function update(
 
   }
 
-
   let delta =
     timestamp -
     lastFrameTime;
 
-
   lastFrameTime =
     timestamp;
-
 
   delta =
     Math.min(
@@ -1993,16 +1845,21 @@ function update(
       32
     );
 
-
   const dt =
     delta /
     16.6667;
-
 
   const dtSec =
     delta /
     1000;
 
+
+  /* ایمنی سرعت توپ */
+
+  ensureBallVelocity();
+
+
+  /* حرکت پدل */
 
   if(keys.left){
 
@@ -2012,7 +1869,6 @@ function update(
 
   }
 
-
   if(keys.right){
 
     paddle.x +=
@@ -2020,7 +1876,6 @@ function update(
       dt;
 
   }
-
 
   paddle.x =
     Math.max(
@@ -2033,15 +1888,18 @@ function update(
     );
 
 
+  /* حرکت توپ */
+
   ball.x +=
     ball.dx *
     dt;
-
 
   ball.y +=
     ball.dy *
     dt;
 
+
+  /* دیواره چپ */
 
   if(
     ball.x -
@@ -2060,6 +1918,8 @@ function update(
 
   }
 
+
+  /* دیواره راست */
 
   if(
     ball.x +
@@ -2080,6 +1940,8 @@ function update(
   }
 
 
+  /* سقف */
+
   if(
     ball.y -
     ball.r <= 0
@@ -2097,6 +1959,8 @@ function update(
 
   }
 
+
+  /* trail */
 
   trail.push({
 
@@ -2130,6 +1994,8 @@ function update(
 
   }
 
+
+  /* برخورد پدل */
 
   if(
 
@@ -2212,15 +2078,19 @@ function update(
     ball.dx =
       vx;
 
-
     ball.dy =
       vy;
 
+    ensureBallVelocity();
 
     sound(720);
 
   }
 
+
+  /* =======================================================
+     برخورد امن با آجرها
+  ======================================================= */
 
   for(
     const b of bricks
@@ -2230,60 +2100,154 @@ function update(
       continue;
 
 
-    const hit =
-      ball.x +
-      ball.r >
-      b.x &&
+    const closestX =
+      Math.max(
+        b.x,
+        Math.min(
+          ball.x,
+          b.x + b.w
+        )
+      );
 
+
+    const closestY =
+      Math.max(
+        b.y,
+        Math.min(
+          ball.y,
+          b.y + b.h
+        )
+      );
+
+
+    const dxHit =
       ball.x -
-      ball.r <
-      b.x +
-      b.w &&
+      closestX;
 
-      ball.y +
-      ball.r >
-      b.y &&
 
+    const dyHit =
       ball.y -
-      ball.r <
-      b.y +
-      b.h;
+      closestY;
 
 
-    if(hit){
-
-      b.alive =
-        false;
-
-
-      score +=
-        10;
+    const hit =
+      dxHit * dxHit +
+      dyHit * dyHit <=
+      ball.r * ball.r;
 
 
-      scoreEl.textContent =
-        score;
+    if(!hit)
+      continue;
 
 
-      makeParticles(
-        ball.x,
-        ball.y,
-        9
-      );
+    /* آجر همان لحظه حذف می‌شود */
+
+    b.alive =
+      false;
 
 
-      sound(
-        360 +
-        currentLevel *
-        80
-      );
+    score +=
+      10;
 
+
+    scoreEl.textContent =
+      score;
+
+
+    makeParticles(
+      ball.x,
+      ball.y,
+      9
+    );
+
+
+    sound(
+      360 +
+      currentLevel *
+      80
+    );
+
+
+    /* موقعیت توپ در فریم قبلی */
+
+    const previousX =
+      ball.x -
+      ball.dx *
+      dt;
+
+
+    const previousY =
+      ball.y -
+      ball.dy *
+      dt;
+
+
+    const cameFromLeft =
+      previousX +
+      ball.r <=
+      b.x;
+
+
+    const cameFromRight =
+      previousX -
+      ball.r >=
+      b.x + b.w;
+
+
+    const cameFromTop =
+      previousY +
+      ball.r <=
+      b.y;
+
+
+    const cameFromBottom =
+      previousY -
+      ball.r >=
+      b.y + b.h;
+
+
+    /* برخورد افقی */
+
+    if(
+      cameFromLeft ||
+      cameFromRight
+    ){
+
+      ball.dx =
+        -ball.dx;
+
+
+      if(
+        cameFromLeft
+      ){
+
+        ball.x =
+          b.x -
+          ball.r -
+          .5;
+
+      }else{
+
+        ball.x =
+          b.x +
+          b.w +
+          ball.r +
+          .5;
+
+      }
+
+    }
+
+    /* برخورد عمودی */
+
+    else{
 
       ball.dy =
         -ball.dy;
 
 
       if(
-        ball.dy < 0
+        cameFromTop
       ){
 
         ball.y =
@@ -2291,7 +2255,9 @@ function update(
           ball.r -
           .5;
 
-      }else{
+      }else if(
+        cameFromBottom
+      ){
 
         ball.y =
           b.y +
@@ -2301,15 +2267,21 @@ function update(
 
       }
 
-
-      updateProgress();
-
-      break;
-
     }
+
+
+    ensureBallVelocity();
+
+    updateProgress();
+
+    /* فقط یک آجر در هر فریم */
+
+    break;
 
   }
 
+
+  /* سقوط توپ */
 
   if(
     ball.y -
@@ -2319,15 +2291,12 @@ function update(
 
     lives--;
 
-
     updateLives();
-
 
     sound(
       180,
       .1
     );
-
 
     trail = [];
 
@@ -2355,6 +2324,8 @@ function update(
   );
 
 
+  /* بررسی تمام شدن آجرها */
+
   const remaining =
     bricks.some(
       b => b.alive
@@ -2372,7 +2343,6 @@ function update(
 
   draw();
 
-
   scheduleUpdate();
 
 }
@@ -2386,7 +2356,6 @@ function updateLives(){
 
   let hearts = "";
 
-
   for(
     let i = 0;
     i < lives;
@@ -2398,7 +2367,6 @@ function updateLives(){
 
   }
 
-
   if(
     lives <= 0
   ){
@@ -2407,7 +2375,6 @@ function updateLives(){
       "💔";
 
   }
-
 
   livesEl.textContent =
     hearts;
@@ -2422,7 +2389,6 @@ function updateLives(){
 function levelComplete(){
 
   stopLoop();
-
 
   running =
     false;
@@ -2526,10 +2492,8 @@ function gameOver(
   roundFinished =
     true;
 
-
   running =
     false;
-
 
   stopLoop();
 
@@ -2926,11 +2890,6 @@ async function submitGameResult(
   };
 
 
-  /*
-   * تک‌نفره:
-   * فقط نتیجه محلی نمایش داده می‌شود.
-   */
-
   if(
     isSolo
   ){
@@ -2941,11 +2900,6 @@ async function submitGameResult(
 
   }
 
-
-  /*
-   * چندنفره:
-   * نتیجه را برای گوشی دیگر بفرست.
-   */
 
   sendMyResult(
     localWon
@@ -2965,10 +2919,6 @@ async function submitGameResult(
   );
 
 
-  /*
-   * اگر نتیجه حریف قبلاً رسیده باشد.
-   */
-
   if(
     opponentResult
   ){
@@ -2985,10 +2935,6 @@ async function submitGameResult(
 ========================================================= */
 
 function showSoloResult(){
-
-  /*
-   * از سیستم سکه یا پروفایل استفاده نمی‌کنیم.
-   */
 
   overlayTitle.textContent =
     score >= 100
@@ -3048,7 +2994,6 @@ function showNetworkResults(){
   const rows = [
 
     {
-
       name:
         myResult.name,
 
@@ -3056,11 +3001,9 @@ function showNetworkResults(){
         myResult.score,
 
       me:true
-
     },
 
     {
-
       name:
         opponentResult.name,
 
@@ -3068,7 +3011,6 @@ function showNetworkResults(){
         opponentResult.score,
 
       me:false
-
     }
 
   ];
@@ -3139,10 +3081,6 @@ function showNetworkResults(){
     "flex";
 
 
-  /*
-   * اگر مساوی باشند
-   */
-
   if(
     myResult.score ===
     opponentResult.score
@@ -3193,29 +3131,22 @@ function continueLevel(){
 
   stopLoop();
 
-
   roundFinished =
     false;
-
 
   running =
     true;
 
-
   overlay.style.display =
     "none";
-
 
   overlay.classList.add(
     "hidden"
   );
 
-
   startLevel();
 
-
   draw();
-
 
   scheduleUpdate();
 
@@ -3230,88 +3161,66 @@ function startGame(){
 
   stopLoop();
 
-
   currentLevel =
     0;
-
 
   score =
     0;
 
-
   lives =
     3;
-
 
   baseSpeed =
     levels[0].speed;
 
-
   running =
     true;
-
 
   roundFinished =
     false;
 
-
   resultSubmitted =
     false;
-
 
   scoreboardShown =
     false;
 
-
   waitingForOpponent =
     false;
-
 
   myResult =
     null;
 
-
   opponentResult =
     null;
-
 
   particles =
     [];
 
-
   trail =
     [];
-
 
   scoreEl.textContent =
     "0";
 
-
   highScoreEl.textContent =
     getHighScore();
 
-
   updateLives();
-
 
   overlay.style.display =
     "none";
-
 
   overlay.classList.add(
     "hidden"
   );
 
-
   roomResults.style.display =
     "none";
 
-
   startLevel();
 
-
   draw();
-
 
   scheduleUpdate();
 
@@ -3329,11 +3238,9 @@ function movePaddle(
   const rect =
     canvas.getBoundingClientRect();
 
-
   const scaleX =
     W /
     rect.width;
-
 
   const canvasX =
     (
@@ -3342,12 +3249,10 @@ function movePaddle(
     ) *
     scaleX;
 
-
   paddle.x =
     canvasX -
     paddle.width /
     2;
-
 
   paddle.x =
     Math.max(
@@ -3373,7 +3278,6 @@ canvas.addEventListener(
     if(!running)
       return;
 
-
     movePaddle(
       e.clientX
     );
@@ -3393,10 +3297,8 @@ canvas.addEventListener(
     if(!running)
       return;
 
-
     const touch =
       e.touches[0];
-
 
     if(touch){
 
@@ -3420,13 +3322,10 @@ canvas.addEventListener(
     if(!running)
       return;
 
-
     e.preventDefault();
-
 
     const touch =
       e.touches[0];
-
 
     if(touch){
 
@@ -3463,7 +3362,6 @@ window.addEventListener(
 
     }
 
-
     if(
       e.key ===
       "ArrowRight" ||
@@ -3496,7 +3394,6 @@ window.addEventListener(
 
     }
 
-
     if(
       e.key ===
       "ArrowRight" ||
@@ -3527,10 +3424,6 @@ mainBtn.addEventListener(
     );
 
 
-    /*
-     * اگر بازی تمام شده:
-     */
-
     if(
       roundFinished
     ){
@@ -3558,18 +3451,9 @@ mainBtn.addEventListener(
     }
 
 
-    /*
-     * مرحله بعد
-     */
-
     if(
       currentLevel > 0
     ){
-
-      /*
-       * در حالت شبکه،
-       * مهمان منتظر فرمان میزبان است.
-       */
 
       if(
         !isSolo &&
@@ -3580,18 +3464,12 @@ mainBtn.addEventListener(
 
       }
 
-
       continueLevel();
-
 
       return;
 
     }
 
-
-    /*
-     * شروع بازی اول
-     */
 
     if(
       isSolo
@@ -3603,11 +3481,6 @@ mainBtn.addEventListener(
 
     }
 
-
-    /*
-     * حالت میزبان:
-     * شروع بازی برای هر دو گوشی.
-     */
 
     if(
       isHost &&
@@ -3622,10 +3495,6 @@ mainBtn.addEventListener(
 
     }
 
-
-    /*
-     * مهمان نباید خودش شروع کند.
-     */
 
     if(
       isGuest
@@ -3665,11 +3534,6 @@ restartBtn.addEventListener(
     }
 
 
-    /*
-     * در شبکه،
-     * میزبان دور بعد را شروع می‌کند.
-     */
-
     if(
       isHost &&
       networkReady
@@ -3705,22 +3569,17 @@ function roomFinishedReset(){
   roomResults.style.display =
     "none";
 
-
   resultSubmitted =
     false;
-
 
   scoreboardShown =
     false;
 
-
   myResult =
     null;
 
-
   opponentResult =
     null;
-
 
   roundFinished =
     false;
@@ -3789,26 +3648,20 @@ async function copyText(
           "textarea"
         );
 
-
       ta.value =
         text;
-
 
       document.body.appendChild(
         ta
       );
 
-
       ta.select();
-
 
       document.execCommand(
         "copy"
       );
 
-
       ta.remove();
-
 
       return true;
 
@@ -3832,24 +3685,19 @@ async function setupHost(){
   networkPanel.style.display =
     "flex";
 
-
   hostArea.classList.remove(
     "hidden"
   );
-
 
   guestArea.classList.add(
     "hidden"
   );
 
-
   networkTitle.textContent =
     "📡 میزبان بازی";
 
-
   networkDescription.textContent =
     "کد دعوت را برای گوشی دوم بفرست.";
-
 
   networkStatus.textContent =
     "در حال ساخت کد دعوت…";
@@ -3875,10 +3723,8 @@ async function setupHost(){
         networkReady =
           true;
 
-
         networkStatus.textContent =
           "✅ اتصال برقرار شد";
-
 
         waitingText.textContent =
           "هر دو گوشی آماده‌اند. شروع بازی را بزن.";
@@ -3906,7 +3752,6 @@ async function setupHost(){
         networkReady =
           false;
 
-
         networkStatus.textContent =
           "❌ اتصال قطع شد";
 
@@ -3922,7 +3767,6 @@ async function setupHost(){
     console.error(
       error
     );
-
 
     networkStatus.textContent =
       "❌ ساخت اتصال ناموفق بود";
@@ -3941,24 +3785,19 @@ async function setupGuest(){
   networkPanel.style.display =
     "flex";
 
-
   hostArea.classList.add(
     "hidden"
   );
-
 
   guestArea.classList.remove(
     "hidden"
   );
 
-
   networkTitle.textContent =
     "📡 ورود به بازی";
 
-
   networkDescription.textContent =
     "کد دعوت میزبان را وارد کن.";
-
 
   networkStatus.textContent =
     "منتظر کد دعوت…";
@@ -4019,14 +3858,11 @@ makeAnswer.addEventListener(
           networkReady =
             true;
 
-
           networkStatus.textContent =
             "✅ اتصال برقرار شد";
 
-
           waitingText.textContent =
             "منتظر شروع بازی توسط میزبان…";
-
 
           sendNet({
 
@@ -4051,7 +3887,6 @@ makeAnswer.addEventListener(
           networkReady =
             false;
 
-
           networkStatus.textContent =
             "❌ اتصال قطع شد";
 
@@ -4061,12 +3896,12 @@ makeAnswer.addEventListener(
       networkStatus.textContent =
         "کد جواب ساخته شد؛ برای میزبان بفرست.";
 
+
     }catch(error){
 
       console.error(
         error
       );
-
 
       networkStatus.textContent =
         "❌ کد دعوت معتبر نیست یا اتصال نشد.";
@@ -4124,12 +3959,12 @@ acceptAnswer.addEventListener(
       networkStatus.textContent =
         "در حال انتظار برای اتصال…";
 
+
     }catch(error){
 
       console.error(
         error
       );
-
 
       networkStatus.textContent =
         "❌ کد جواب معتبر نیست.";
@@ -4153,7 +3988,6 @@ copyOffer.addEventListener(
         offerCode.value
       );
 
-
     networkStatus.textContent =
       ok
         ? "✅ کد دعوت کپی شد."
@@ -4175,7 +4009,6 @@ copyAnswer.addEventListener(
       await copyText(
         answerCode.value
       );
-
 
     networkStatus.textContent =
       ok
@@ -4204,20 +4037,11 @@ networkClose.addEventListener(
 
     }catch{}
 
-
     networkPanel.style.display =
       "none";
 
-
     networkReady =
       isSolo;
-
-
-    /*
-     * اگر کاربر وارد حالت host/guest شده
-     * ولی لغو کرده، بازی را تک‌نفره
-     * خودکار شروع نمی‌کنیم.
-     */
 
   }
 );
@@ -4246,7 +4070,7 @@ window.addEventListener(
 
 
 /* =========================================================
-   نتیجه شبکه
+   راه‌اندازی شبکه
 ========================================================= */
 
 function setupNetwork(){
@@ -4257,7 +4081,6 @@ function setupNetwork(){
 
   }
 
-
   if(isHost){
 
     setupHost();
@@ -4265,7 +4088,6 @@ function setupNetwork(){
     return;
 
   }
-
 
   if(isGuest){
 
@@ -4285,19 +4107,11 @@ function setupNetwork(){
 highScoreEl.textContent =
   getHighScore();
 
-
 updateLives();
-
 
 startLevel();
 
-
 draw();
-
-
-/* =========================================================
-   راه‌اندازی شبکه
-========================================================= */
 
 setupNetwork();
 
