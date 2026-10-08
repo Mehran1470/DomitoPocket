@@ -1,0 +1,4343 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>آجرشکن | دومیتو جیبی</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:#07111f;
+  color:#fff;
+  font-family:Tahoma,Arial,sans-serif;
+  overflow:hidden;
+  touch-action:none;
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#gameWrap{
+  width:100%;
+  max-width:460px;
+  height:100vh;
+  max-height:900px;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  padding:10px;
+}
+
+.topbar{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:7px;
+  margin-bottom:8px;
+  z-index:5;
+}
+
+.stat{
+  flex:1;
+  min-width:0;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:7px 5px;
+  text-align:center;
+  backdrop-filter:blur(10px);
+}
+
+.stat b{
+  display:block;
+  font-size:17px;
+}
+
+.stat span{
+  display:block;
+  margin-top:2px;
+  font-size:10px;
+  opacity:.65;
+}
+
+#canvasBox{
+  position:relative;
+  width:min(400px, calc(100vw - 20px));
+  aspect-ratio:400 / 500;
+  max-height:calc(100vh - 145px);
+  border-radius:22px;
+  overflow:hidden;
+  background:#091626;
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,.45),
+    inset 0 0 40px rgba(0,0,0,.2);
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+}
+
+#overlay{
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:22px;
+  background:rgba(2,8,18,.62);
+  backdrop-filter:blur(9px);
+  z-index:10;
+}
+
+.panel{
+  width:100%;
+  max-width:310px;
+  padding:25px 20px;
+  border-radius:25px;
+  text-align:center;
+  background:rgba(20,32,52,.88);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 20px 60px rgba(0,0,0,.4);
+}
+
+.panel h1{
+  margin:0 0 8px;
+  font-size:27px;
+}
+
+.panel p{
+  margin:7px 0;
+  opacity:.75;
+  font-size:14px;
+  line-height:1.8;
+}
+
+button{
+  width:100%;
+  border:0;
+  border-radius:15px;
+  padding:13px 15px;
+  margin-top:12px;
+  color:#fff;
+  background:linear-gradient(135deg,#267cff,#744cff);
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 8px 25px rgba(45,110,255,.25);
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+.secondary{
+  background:rgba(255,255,255,.09);
+  box-shadow:none;
+}
+
+.hidden{
+  display:none !important;
+}
+
+#levelInfo{
+  position:absolute;
+  top:10px;
+  left:10px;
+  right:10px;
+  text-align:center;
+  pointer-events:none;
+  z-index:4;
+}
+
+#levelInfo span{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(0,0,0,.3);
+  border:1px solid rgba(255,255,255,.1);
+  font-size:12px;
+  backdrop-filter:blur(8px);
+}
+
+#progressWrap{
+  width:min(400px, calc(100vw - 20px));
+  height:7px;
+  margin-top:8px;
+  overflow:hidden;
+  border-radius:99px;
+  background:rgba(255,255,255,.08);
+}
+
+#progress{
+  width:0%;
+  height:100%;
+  border-radius:99px;
+  background:linear-gradient(90deg,#4f8cff,#b86cff);
+  transition:width .2s ease;
+}
+
+#roomResults{
+  position:absolute;
+  inset:0;
+  z-index:30;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(12px);
+}
+
+.resultsBox{
+  width:100%;
+  max-width:350px;
+  max-height:80vh;
+  overflow:auto;
+  padding:22px;
+  border-radius:24px;
+  background:rgba(16,28,48,.95);
+  border:1px solid rgba(255,255,255,.14);
+}
+
+.resultsBox h2{
+  margin:0 0 15px;
+  text-align:center;
+}
+
+.resultRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:11px 12px;
+  margin:7px 0;
+  border-radius:13px;
+  background:rgba(255,255,255,.07);
+}
+
+.resultRow.me{
+  border:1px solid rgba(90,145,255,.5);
+}
+
+.resultName{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  max-width:190px;
+}
+
+.resultScore{
+  font-weight:bold;
+}
+
+#networkPanel{
+  position:absolute;
+  inset:0;
+  z-index:50;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(2,8,18,.88);
+  backdrop-filter:blur(14px);
+}
+
+.networkBox{
+  width:100%;
+  max-width:350px;
+  padding:22px;
+  border-radius:25px;
+  background:rgba(16,28,48,.96);
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:0 20px 60px rgba(0,0,0,.45);
+}
+
+.networkBox h2{
+  margin:0 0 8px;
+  text-align:center;
+}
+
+.networkBox p{
+  margin:8px 0;
+  font-size:13px;
+  line-height:1.8;
+  opacity:.75;
+  text-align:center;
+}
+
+.networkBox textarea{
+  width:100%;
+  min-height:105px;
+  resize:none;
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.28);
+  color:#fff;
+  font-family:monospace;
+  font-size:11px;
+  direction:ltr;
+  text-align:left;
+  outline:none;
+}
+
+.networkStatus{
+  min-height:25px;
+  margin-top:9px;
+  text-align:center;
+  font-size:12px;
+  opacity:.75;
+}
+
+.networkCodeLabel{
+  margin-top:10px;
+  font-size:11px;
+  opacity:.55;
+}
+
+.nameLabel{
+  display:block;
+  margin-top:12px;
+  margin-bottom:5px;
+  font-size:11px;
+  opacity:.6;
+}
+
+.nameInput{
+  width:100%;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border-radius:13px;
+  padding:11px;
+  outline:none;
+  font-family:inherit;
+  text-align:center;
+}
+
+.networkButtons{
+  display:flex;
+  gap:8px;
+}
+
+.networkButtons button{
+  flex:1;
+}
+
+#waitingText{
+  text-align:center;
+  font-size:12px;
+  opacity:.65;
+  margin-top:8px;
+}
+
+@media(max-height:650px){
+
+  #gameWrap{
+    padding:5px;
+  }
+
+  .topbar{
+    margin-bottom:4px;
+  }
+
+  .stat{
+    padding:4px;
+  }
+
+  .stat b{
+    font-size:14px;
+  }
+
+  .stat span{
+    font-size:8px;
+  }
+
+  #progressWrap{
+    margin-top:4px;
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="gameWrap">
+
+
+  <div class="topbar">
+
+    <div class="stat">
+
+      <b id="score">
+        0
+      </b>
+
+      <span>
+        امتیاز
+      </span>
+
+    </div>
+
+
+    <div class="stat">
+
+      <b id="lives">
+        🔰🔰🔰
+      </b>
+
+      <span>
+       HP
+      </span>
+
+    </div>
+
+
+    <div class="stat">
+
+      <b id="highScore">
+        0
+      </b>
+
+      <span>
+        رکورد
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div id="canvasBox">
+
+
+    <canvas
+      id="game"
+      width="400"
+      height="500"
+    ></canvas>
+
+
+    <div id="levelInfo">
+
+      <span id="levelText">
+        مرحله ۱
+      </span>
+
+    </div>
+
+
+    <div id="overlay">
+
+      <div class="panel">
+
+        <h1 id="overlayTitle">
+          🧱 آجرشکن
+        </h1>
+
+        <p id="overlayText">
+          پنج مرحله آجرها را نابود کن و رکورد بزن!
+        </p>
+
+        <button id="mainBtn">
+          شروع بازی
+        </button>
+
+        <button
+          id="restartBtn"
+          class="secondary hidden"
+        >
+          شروع دوباره
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div id="roomResults">
+
+      <div class="resultsBox">
+
+        <h2>
+          🏆 نتیجه بازی
+        </h2>
+
+        <div id="resultsList"></div>
+
+        <button id="resultClose">
+          ادامه
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         پنل اتصال Pocket
+    ====================================================== -->
+
+    <div id="networkPanel">
+
+      <div class="networkBox">
+
+        <h2 id="networkTitle">
+          📡 اتصال دومیتو جیبی
+        </h2>
+
+        <p id="networkDescription">
+          دو گوشی را به یک Wi-Fi یا هات‌اسپات وصل کنید.
+        </p>
+
+
+        <label
+          class="nameLabel"
+          for="networkName"
+        >
+          نام بازیکن
+        </label>
+
+        <input
+          id="networkName"
+          class="nameInput"
+          maxlength="20"
+          autocomplete="off"
+          placeholder="نام بازیکن"
+        >
+
+
+        <div
+          id="hostArea"
+          class="hidden"
+        >
+
+          <div class="networkCodeLabel">
+            کد دعوت را برای گوشی مهمان بفرست:
+          </div>
+
+          <textarea
+            id="offerCode"
+            readonly
+            spellcheck="false"
+          ></textarea>
+
+          <button id="copyOffer">
+            📋 کپی کد دعوت
+          </button>
+
+          <div class="networkCodeLabel">
+            کد جواب مهمان:
+          </div>
+
+          <textarea
+            id="answerInput"
+            spellcheck="false"
+            placeholder="کد جواب را اینجا وارد کن..."
+          ></textarea>
+
+          <button id="acceptAnswer">
+            🔗 اتصال
+          </button>
+
+        </div>
+
+
+        <div
+          id="guestArea"
+          class="hidden"
+        >
+
+          <div class="networkCodeLabel">
+            کد دعوت میزبان:
+          </div>
+
+          <textarea
+            id="offerInput"
+            spellcheck="false"
+            placeholder="کد دعوت را اینجا وارد کن..."
+          ></textarea>
+
+          <button id="makeAnswer">
+            ساخت کد اتصال
+          </button>
+
+
+          <div
+            id="answerArea"
+            class="hidden"
+          >
+
+            <div class="networkCodeLabel">
+              این کد را برای میزبان بفرست:
+            </div>
+
+            <textarea
+              id="answerCode"
+              readonly
+              spellcheck="false"
+            ></textarea>
+
+            <button id="copyAnswer">
+              📋 کپی کد جواب
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div
+          id="networkStatus"
+          class="networkStatus"
+        >
+          آماده اتصال
+        </div>
+
+
+        <div id="waitingText"></div>
+
+
+        <button
+          id="networkClose"
+          class="secondary"
+        >
+          لغو
+        </button>
+
+      </div>
+
+    </div>
+
+
+  </div>
+
+
+  <div id="progressWrap">
+
+    <div id="progress"></div>
+
+  </div>
+
+
+</div>
+
+
+<script type="module">
+
+
+/* =========================================================
+   Pocket imports
+========================================================= */
+
+import {
+  getSavedName,
+  saveName
+} from "../js/store.js";
+
+
+import {
+  hostInvite,
+  hostAccept,
+  guestJoin
+} from "../js/net.js";
+
+
+/* =========================================================
+   تنظیمات
+========================================================= */
+
+const GAME_ID =
+  "reaction";
+
+
+const canvas =
+  document.getElementById("game");
+
+
+const ctx =
+  canvas.getContext("2d");
+
+
+const W =
+  canvas.width;
+
+
+const H =
+  canvas.height;
+
+
+const scoreEl =
+  document.getElementById("score");
+
+
+const livesEl =
+  document.getElementById("lives");
+
+
+const highScoreEl =
+  document.getElementById("highScore");
+
+
+const overlay =
+  document.getElementById("overlay");
+
+
+const overlayTitle =
+  document.getElementById("overlayTitle");
+
+
+const overlayText =
+  document.getElementById("overlayText");
+
+
+const mainBtn =
+  document.getElementById("mainBtn");
+
+
+const restartBtn =
+  document.getElementById("restartBtn");
+
+
+const levelText =
+  document.getElementById("levelText");
+
+
+const progress =
+  document.getElementById("progress");
+
+
+const roomResults =
+  document.getElementById("roomResults");
+
+
+const resultsList =
+  document.getElementById("resultsList");
+
+
+const resultClose =
+  document.getElementById("resultClose");
+
+
+/* =========================================================
+   شبکه Pocket
+========================================================= */
+
+const networkPanel =
+  document.getElementById("networkPanel");
+
+
+const networkTitle =
+  document.getElementById("networkTitle");
+
+
+const networkDescription =
+  document.getElementById("networkDescription");
+
+
+const networkName =
+  document.getElementById("networkName");
+
+
+const hostArea =
+  document.getElementById("hostArea");
+
+
+const guestArea =
+  document.getElementById("guestArea");
+
+
+const offerCode =
+  document.getElementById("offerCode");
+
+
+const answerInput =
+  document.getElementById("answerInput");
+
+
+const offerInput =
+  document.getElementById("offerInput");
+
+
+const answerCode =
+  document.getElementById("answerCode");
+
+
+const answerArea =
+  document.getElementById("answerArea");
+
+
+const acceptAnswer =
+  document.getElementById("acceptAnswer");
+
+
+const makeAnswer =
+  document.getElementById("makeAnswer");
+
+
+const copyOffer =
+  document.getElementById("copyOffer");
+
+
+const copyAnswer =
+  document.getElementById("copyAnswer");
+
+
+const networkStatus =
+  document.getElementById("networkStatus");
+
+
+const waitingText =
+  document.getElementById("waitingText");
+
+
+const networkClose =
+  document.getElementById("networkClose");
+
+
+/* =========================================================
+   حالت
+========================================================= */
+
+const params =
+  new URLSearchParams(
+    location.search
+  );
+
+
+/*
+   حالت‌ها:
+
+   ?solo=1
+   تک نفره
+
+   ?host=1
+   میزبان
+
+   ?guest=1
+   مهمان
+
+   اگر هیچ‌کدام نباشد:
+   تک‌نفره
+*/
+
+const isSolo =
+  params.has("solo") ||
+  (
+    !params.has("host") &&
+    !params.has("guest")
+  );
+
+
+const isHost =
+  params.has("host");
+
+
+const isGuest =
+  params.has("guest");
+
+
+let link =
+  null;
+
+
+let networkReady =
+  isSolo;
+
+
+let networkRole =
+  isHost
+    ? "host"
+    : isGuest
+      ? "guest"
+      : "solo";
+
+
+let myName =
+  getSavedName() ||
+  "بازیکن";
+
+
+let opponentName =
+  "بازیکن دوم";
+
+
+let myResult =
+  null;
+
+
+let opponentResult =
+  null;
+
+
+let waitingForOpponent =
+  false;
+
+
+/* =========================================================
+   سطوح
+========================================================= */
+
+const levels = [
+
+  {
+    rows:4,
+    cols:8,
+    speed:3.8,
+    name:"مرحله ۱",
+    desc:"شروع آروم 😎"
+  },
+
+  {
+    rows:5,
+    cols:8,
+    speed:4.15,
+    name:"مرحله ۲",
+    desc:"یه کم سریع‌تر 🔥"
+  },
+
+  {
+    rows:5,
+    cols:9,
+    speed:4.55,
+    name:"مرحله ۳",
+    desc:"آجرهای بیشتر!"
+  },
+
+  {
+    rows:6,
+    cols:9,
+    speed:4.9,
+    name:"مرحله ۴",
+    desc:"چالش واقعی 😈"
+  },
+
+  {
+    rows:6,
+    cols:10,
+    speed:5.35,
+    name:"مرحله ۵",
+    desc:"آخرین مرحله! 🏆"
+  }
+
+];
+
+
+/* =========================================================
+   حالت بازی
+========================================================= */
+
+let running =
+  false;
+
+
+let roundFinished =
+  false;
+
+
+let resultSubmitted =
+  false;
+
+
+let scoreboardShown =
+  false;
+
+
+let currentLevel =
+  0;
+
+
+let score =
+  0;
+
+
+let lives =
+  3;
+
+
+let baseSpeed =
+  3.8;
+
+
+let animId =
+  null;
+
+
+let framePending =
+  false;
+
+
+let lastFrameTime =
+  0;
+
+
+/* =========================================================
+   توپ
+========================================================= */
+
+const ball = {
+
+  x:W / 2,
+  y:H - 80,
+
+  r:7,
+
+  dx:3.8,
+  dy:-3.8
+
+};
+
+
+/* =========================================================
+   پدل
+========================================================= */
+
+const paddle = {
+
+  width:82,
+  height:11,
+
+  x:(W - 82) / 2,
+  y:H - 30,
+
+  speed:7
+
+};
+
+
+/* =========================================================
+   آجرها
+========================================================= */
+
+let bricks = [];
+
+
+/* =========================================================
+   افکت‌ها
+========================================================= */
+
+let particles = [];
+
+let trail = [];
+
+
+/* =========================================================
+   کلیدها
+========================================================= */
+
+const keys = {
+
+  left:false,
+  right:false
+
+};
+
+
+/* =========================================================
+   صدا
+========================================================= */
+
+let audioCtx =
+  null;
+
+
+function sound(
+  freq = 500,
+  duration = .04
+){
+
+  try{
+
+    if(!audioCtx){
+
+      audioCtx =
+        new (
+          window.AudioContext ||
+          window.webkitAudioContext
+        )();
+
+    }
+
+
+    if(
+      audioCtx.state ===
+      "suspended"
+    ){
+
+      audioCtx.resume();
+
+    }
+
+
+    const osc =
+      audioCtx.createOscillator();
+
+
+    const gain =
+      audioCtx.createGain();
+
+
+    osc.frequency.value =
+      freq;
+
+
+    osc.type =
+      "sine";
+
+
+    gain.gain.value =
+      .035;
+
+
+    osc.connect(
+      gain
+    );
+
+
+    gain.connect(
+      audioCtx.destination
+    );
+
+
+    osc.start();
+
+
+    gain.gain.exponentialRampToValueAtTime(
+      .001,
+      audioCtx.currentTime +
+      duration
+    );
+
+
+    osc.stop(
+      audioCtx.currentTime +
+      duration
+    );
+
+  }catch{}
+
+}
+
+
+/* =========================================================
+   ساخت آجرها
+========================================================= */
+
+function createBricks(){
+
+  bricks = [];
+
+
+  const level =
+    levels[currentLevel];
+
+
+  const rows =
+    level.rows;
+
+
+  const cols =
+    level.cols;
+
+
+  const gap =
+    5;
+
+
+  const side =
+    18;
+
+
+  const brickWidth =
+    (
+      W -
+      side * 2 -
+      gap * (cols - 1)
+    ) / cols;
+
+
+  const brickHeight =
+    18;
+
+
+  for(
+    let r = 0;
+    r < rows;
+    r++
+  ){
+
+    for(
+      let c = 0;
+      c < cols;
+      c++
+    ){
+
+      bricks.push({
+
+        x:
+          side +
+          c *
+          (
+            brickWidth +
+            gap
+          ),
+
+        y:
+          55 +
+          r *
+          (
+            brickHeight +
+            gap
+          ),
+
+        w:
+          brickWidth,
+
+        h:
+          brickHeight,
+
+        alive:true,
+
+        hue:
+          (
+            r * 55 +
+            c * 13 +
+            currentLevel * 35
+          ) % 360
+
+      });
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ریست توپ
+========================================================= */
+
+function resetBall(){
+
+  ball.x =
+    W / 2;
+
+
+  ball.y =
+    H - 75;
+
+
+  const angle =
+    (
+      Math.random() * .42 +
+      .29
+    ) * Math.PI;
+
+
+  const direction =
+    Math.random() < .5
+      ? -1
+      : 1;
+
+
+  ball.dx =
+    Math.cos(angle) *
+    baseSpeed *
+    direction;
+
+
+  ball.dy =
+    -Math.abs(
+      Math.sin(angle) *
+      baseSpeed
+    );
+
+}
+
+
+/* =========================================================
+   شروع مرحله
+========================================================= */
+
+function startLevel(){
+
+  const level =
+    levels[currentLevel];
+
+
+  baseSpeed =
+    level.speed;
+
+
+  levelText.textContent =
+    `${level.name} — ${level.desc}`;
+
+
+  createBricks();
+
+
+  particles = [];
+
+  trail = [];
+
+
+  paddle.x =
+    (W - paddle.width) / 2;
+
+
+  resetBall();
+
+
+  updateProgress();
+
+}
+
+
+/* =========================================================
+   ذرات
+========================================================= */
+
+function makeParticles(
+  x,
+  y,
+  count = 7
+){
+
+  for(
+    let i = 0;
+    i < count;
+    i++
+  ){
+
+    const angle =
+      Math.random() *
+      Math.PI *
+      2;
+
+
+    const speed =
+      40 +
+      Math.random() *
+      100;
+
+
+    particles.push({
+
+      x,
+
+      y,
+
+      dx:
+        Math.cos(angle) *
+        speed,
+
+      dy:
+        Math.sin(angle) *
+        speed,
+
+      life:1,
+
+      size:
+        2 +
+        Math.random() * 3
+
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   آپدیت ذرات
+========================================================= */
+
+function updateParticles(
+  dtSec
+){
+
+  for(
+    let i = particles.length - 1;
+    i >= 0;
+    i--
+  ){
+
+    const p =
+      particles[i];
+
+
+    p.x +=
+      p.dx *
+      dtSec;
+
+
+    p.y +=
+      p.dy *
+      dtSec;
+
+
+    p.dy +=
+      120 *
+      dtSec;
+
+
+    p.life -=
+      dtSec *
+      2.4;
+
+
+    if(
+      p.life <= 0
+    ){
+
+      particles.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   پیشرفت
+========================================================= */
+
+function updateProgress(){
+
+  const total =
+    bricks.length;
+
+
+  const destroyed =
+    bricks.filter(
+      b => !b.alive
+    ).length;
+
+
+  const percent =
+    total > 0
+      ? destroyed /
+        total *
+        100
+      : 0;
+
+
+  progress.style.width =
+    `${percent}%`;
+
+}
+
+
+/* =========================================================
+   پس‌زمینه
+========================================================= */
+
+function drawBackground(){
+
+  const gradient =
+    ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      H
+    );
+
+
+  gradient.addColorStop(
+    0,
+    "#08182d"
+  );
+
+
+  gradient.addColorStop(
+    1,
+    "#040a14"
+  );
+
+
+  ctx.fillStyle =
+    gradient;
+
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  ctx.save();
+
+
+  ctx.globalAlpha =
+    .05;
+
+
+  ctx.strokeStyle =
+    "#fff";
+
+
+  for(
+    let x = 0;
+    x < W;
+    x += 25
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x,
+      0
+    );
+
+    ctx.lineTo(
+      x,
+      H
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  for(
+    let y = 0;
+    y < H;
+    y += 25
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      0,
+      y
+    );
+
+    ctx.lineTo(
+      W,
+      y
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  ctx.restore();
+
+}
+
+
+/* =========================================================
+   آجرها
+========================================================= */
+
+function drawBricks(){
+
+  for(
+    const b of bricks
+  ){
+
+    if(!b.alive)
+      continue;
+
+
+    ctx.save();
+
+
+    const gradient =
+      ctx.createLinearGradient(
+        b.x,
+        b.y,
+        b.x,
+        b.y + b.h
+      );
+
+
+    gradient.addColorStop(
+      0,
+      `hsla(${b.hue},90%,68%,1)`
+    );
+
+
+    gradient.addColorStop(
+      1,
+      `hsla(${b.hue},75%,42%,1)`
+    );
+
+
+    ctx.fillStyle =
+      gradient;
+
+
+    ctx.beginPath();
+
+
+    ctx.roundRect(
+      b.x,
+      b.y,
+      b.w,
+      b.h,
+      5
+    );
+
+
+    ctx.fill();
+
+
+    ctx.strokeStyle =
+      "rgba(255,255,255,.16)";
+
+
+    ctx.stroke();
+
+
+    ctx.restore();
+
+  }
+
+}
+
+
+/* =========================================================
+   پدل
+========================================================= */
+
+function drawPaddle(){
+
+  ctx.save();
+
+
+  const gradient =
+    ctx.createLinearGradient(
+      paddle.x,
+      paddle.y,
+      paddle.x,
+      paddle.y +
+      paddle.height
+    );
+
+
+  gradient.addColorStop(
+    0,
+    "#ffffff"
+  );
+
+
+  gradient.addColorStop(
+    .3,
+    "#8bb7ff"
+  );
+
+
+  gradient.addColorStop(
+    1,
+    "#4a72ff"
+  );
+
+
+  ctx.fillStyle =
+    gradient;
+
+
+  ctx.shadowColor =
+    "rgba(70,130,255,.8)";
+
+
+  ctx.shadowBlur =
+    14;
+
+
+  ctx.beginPath();
+
+
+  ctx.roundRect(
+    paddle.x,
+    paddle.y,
+    paddle.width,
+    paddle.height,
+    7
+  );
+
+
+  ctx.fill();
+
+
+  ctx.restore();
+
+}
+
+
+/* =========================================================
+   توپ
+========================================================= */
+
+function drawBall(){
+
+  for(
+    let i = 0;
+    i < trail.length;
+    i++
+  ){
+
+    const t =
+      trail[i];
+
+
+    ctx.save();
+
+
+    ctx.globalAlpha =
+      Math.max(
+        0,
+        t.life
+      ) * .35;
+
+
+    ctx.fillStyle =
+      "#ffffff";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      t.x,
+      t.y,
+      ball.r *
+      (
+        .35 +
+        t.life *
+        .45
+      ),
+      0,
+      Math.PI * 2
+    );
+
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+  }
+
+
+  ctx.save();
+
+
+  ctx.shadowColor =
+    "#7db3ff";
+
+
+  ctx.shadowBlur =
+    18;
+
+
+  const gradient =
+    ctx.createRadialGradient(
+      ball.x - 2,
+      ball.y - 2,
+      1,
+      ball.x,
+      ball.y,
+      ball.r
+    );
+
+
+  gradient.addColorStop(
+    0,
+    "#ffffff"
+  );
+
+
+  gradient.addColorStop(
+    .4,
+    "#c9e0ff"
+  );
+
+
+  gradient.addColorStop(
+    1,
+    "#5790ff"
+  );
+
+
+  ctx.fillStyle =
+    gradient;
+
+
+  ctx.beginPath();
+
+
+  ctx.arc(
+    ball.x,
+    ball.y,
+    ball.r,
+    0,
+    Math.PI * 2
+  );
+
+
+  ctx.fill();
+
+
+  ctx.restore();
+
+}
+
+
+/* =========================================================
+   ذرات
+========================================================= */
+
+function drawParticles(){
+
+  for(
+    const p of particles
+  ){
+
+    ctx.save();
+
+
+    ctx.globalAlpha =
+      Math.max(
+        0,
+        p.life
+      );
+
+
+    ctx.fillStyle =
+      "#ffffff";
+
+
+    ctx.beginPath();
+
+
+    ctx.arc(
+      p.x,
+      p.y,
+      p.size,
+      0,
+      Math.PI * 2
+    );
+
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+  }
+
+}
+
+
+/* =========================================================
+   رسم
+========================================================= */
+
+function draw(){
+
+  drawBackground();
+
+  drawBricks();
+
+  drawParticles();
+
+  drawPaddle();
+
+  drawBall();
+
+}
+
+
+/* =========================================================
+   زمان‌بندی
+========================================================= */
+
+function scheduleUpdate(){
+
+  if(!running)
+    return;
+
+
+  if(framePending)
+    return;
+
+
+  framePending =
+    true;
+
+
+  animId =
+    requestAnimationFrame(
+      update
+    );
+
+}
+
+
+/* =========================================================
+   توقف
+========================================================= */
+
+function stopLoop(){
+
+  if(
+    animId !== null
+  ){
+
+    cancelAnimationFrame(
+      animId
+    );
+
+  }
+
+
+  animId =
+    null;
+
+
+  framePending =
+    false;
+
+
+  lastFrameTime =
+    0;
+
+}
+
+
+/* =========================================================
+   آپدیت بازی
+========================================================= */
+
+function update(
+  timestamp
+){
+
+  framePending =
+    false;
+
+
+  animId =
+    null;
+
+
+  if(!running)
+    return;
+
+
+  if(!lastFrameTime){
+
+    lastFrameTime =
+      timestamp;
+
+  }
+
+
+  let delta =
+    timestamp -
+    lastFrameTime;
+
+
+  lastFrameTime =
+    timestamp;
+
+
+  delta =
+    Math.min(
+      Math.max(
+        delta,
+        0
+      ),
+      32
+    );
+
+
+  const dt =
+    delta /
+    16.6667;
+
+
+  const dtSec =
+    delta /
+    1000;
+
+
+  if(keys.left){
+
+    paddle.x -=
+      paddle.speed *
+      dt;
+
+  }
+
+
+  if(keys.right){
+
+    paddle.x +=
+      paddle.speed *
+      dt;
+
+  }
+
+
+  paddle.x =
+    Math.max(
+      0,
+      Math.min(
+        W -
+        paddle.width,
+        paddle.x
+      )
+    );
+
+
+  ball.x +=
+    ball.dx *
+    dt;
+
+
+  ball.y +=
+    ball.dy *
+    dt;
+
+
+  if(
+    ball.x -
+    ball.r <= 0
+  ){
+
+    ball.x =
+      ball.r;
+
+    ball.dx =
+      Math.abs(
+        ball.dx
+      );
+
+    sound(480);
+
+  }
+
+
+  if(
+    ball.x +
+    ball.r >= W
+  ){
+
+    ball.x =
+      W -
+      ball.r;
+
+    ball.dx =
+      -Math.abs(
+        ball.dx
+      );
+
+    sound(480);
+
+  }
+
+
+  if(
+    ball.y -
+    ball.r <= 0
+  ){
+
+    ball.y =
+      ball.r;
+
+    ball.dy =
+      Math.abs(
+        ball.dy
+      );
+
+    sound(560);
+
+  }
+
+
+  trail.push({
+
+    x:
+      ball.x,
+
+    y:
+      ball.y,
+
+    life:1
+
+  });
+
+
+  if(
+    trail.length > 14
+  ){
+
+    trail.shift();
+
+  }
+
+
+  for(
+    const t of trail
+  ){
+
+    t.life -=
+      .075 *
+      dt;
+
+  }
+
+
+  if(
+
+    ball.dy > 0 &&
+
+    ball.y +
+    ball.r >=
+      paddle.y &&
+
+    ball.y -
+    ball.r <=
+      paddle.y +
+      paddle.height &&
+
+    ball.x >=
+      paddle.x &&
+
+    ball.x <=
+      paddle.x +
+      paddle.width
+
+  ){
+
+    ball.y =
+      paddle.y -
+      ball.r -
+      .5;
+
+
+    const center =
+      paddle.x +
+      paddle.width /
+      2;
+
+
+    const hit =
+      (
+        ball.x -
+        center
+      ) /
+      (
+        paddle.width /
+        2
+      );
+
+
+    let vx =
+      hit *
+      baseSpeed *
+      1.08;
+
+
+    const maxVx =
+      baseSpeed *
+      .92;
+
+
+    vx =
+      Math.max(
+        -maxVx,
+        Math.min(
+          maxVx,
+          vx
+        )
+      );
+
+
+    const vy =
+      -Math.sqrt(
+        Math.max(
+          .5,
+          baseSpeed *
+          baseSpeed -
+          vx *
+          vx
+        )
+      );
+
+
+    ball.dx =
+      vx;
+
+
+    ball.dy =
+      vy;
+
+
+    sound(720);
+
+  }
+
+
+  for(
+    const b of bricks
+  ){
+
+    if(!b.alive)
+      continue;
+
+
+    const hit =
+      ball.x +
+      ball.r >
+      b.x &&
+
+      ball.x -
+      ball.r <
+      b.x +
+      b.w &&
+
+      ball.y +
+      ball.r >
+      b.y &&
+
+      ball.y -
+      ball.r <
+      b.y +
+      b.h;
+
+
+    if(hit){
+
+      b.alive =
+        false;
+
+
+      score +=
+        10;
+
+
+      scoreEl.textContent =
+        score;
+
+
+      makeParticles(
+        ball.x,
+        ball.y,
+        9
+      );
+
+
+      sound(
+        360 +
+        currentLevel *
+        80
+      );
+
+
+      ball.dy =
+        -ball.dy;
+
+
+      if(
+        ball.dy < 0
+      ){
+
+        ball.y =
+          b.y -
+          ball.r -
+          .5;
+
+      }else{
+
+        ball.y =
+          b.y +
+          b.h +
+          ball.r +
+          .5;
+
+      }
+
+
+      updateProgress();
+
+      break;
+
+    }
+
+  }
+
+
+  if(
+    ball.y -
+    ball.r >
+    H
+  ){
+
+    lives--;
+
+
+    updateLives();
+
+
+    sound(
+      180,
+      .1
+    );
+
+
+    trail = [];
+
+
+    if(
+      lives <= 0
+    ){
+
+      gameOver(
+        false
+      );
+
+      return;
+
+    }
+
+
+    resetBall();
+
+  }
+
+
+  updateParticles(
+    dtSec
+  );
+
+
+  const remaining =
+    bricks.some(
+      b => b.alive
+    );
+
+
+  if(!remaining){
+
+    levelComplete();
+
+    return;
+
+  }
+
+
+  draw();
+
+
+  scheduleUpdate();
+
+}
+
+
+/* =========================================================
+   جان
+========================================================= */
+
+function updateLives(){
+
+  let hearts = "";
+
+
+  for(
+    let i = 0;
+    i < lives;
+    i++
+  ){
+
+    hearts +=
+      "❤️";
+
+  }
+
+
+  if(
+    lives <= 0
+  ){
+
+    hearts =
+      "💔";
+
+  }
+
+
+  livesEl.textContent =
+    hearts;
+
+}
+
+
+/* =========================================================
+   پایان مرحله
+========================================================= */
+
+function levelComplete(){
+
+  stopLoop();
+
+
+  running =
+    false;
+
+
+  makeParticles(
+    W / 2,
+    H / 2,
+    45
+  );
+
+
+  draw();
+
+
+  sound(
+    900,
+    .12
+  );
+
+
+  setTimeout(
+    () => {
+
+      if(
+        roundFinished
+      )
+        return;
+
+
+      currentLevel++;
+
+
+      if(
+        currentLevel >=
+        levels.length
+      ){
+
+        gameOver(
+          true
+        );
+
+        return;
+
+      }
+
+
+      overlay.classList.remove(
+        "hidden"
+      );
+
+
+      overlay.style.display =
+        "flex";
+
+
+      overlayTitle.textContent =
+        `🎉 ${
+          levels[
+            currentLevel - 1
+          ].name
+        } تمام شد!`;
+
+
+      overlayText.textContent =
+        `مرحله بعد: ${
+          levels[
+            currentLevel
+          ].name
+        } — ${
+          levels[
+            currentLevel
+          ].desc
+        }`;
+
+
+      mainBtn.textContent =
+        "مرحله بعد ➜";
+
+    },
+    500
+  );
+
+}
+
+
+/* =========================================================
+   پایان کامل بازی
+========================================================= */
+
+function gameOver(
+  won
+){
+
+  if(
+    roundFinished
+  )
+    return;
+
+
+  roundFinished =
+    true;
+
+
+  running =
+    false;
+
+
+  stopLoop();
+
+
+  const finalScore =
+    score;
+
+
+  if(
+    finalScore >
+    getHighScore()
+  ){
+
+    localStorage.setItem(
+      "breakoutHigh",
+      String(finalScore)
+    );
+
+
+    highScoreEl.textContent =
+      finalScore;
+
+  }
+
+
+  overlay.style.display =
+    "flex";
+
+
+  overlay.classList.remove(
+    "hidden"
+  );
+
+
+  overlayTitle.textContent =
+    won
+      ? "🏆 برنده شدی!"
+      : "💥 بازی تمام شد";
+
+
+  overlayText.textContent =
+    won
+      ? `هر ۵ مرحله را تمام کردی! امتیاز: ${finalScore}`
+      : `امتیاز نهایی: ${finalScore}`;
+
+
+  mainBtn.textContent =
+    "ثبت نتیجه";
+
+
+  restartBtn.classList.remove(
+    "hidden"
+  );
+
+
+  submitGameResult(
+    won
+  );
+
+}
+
+
+/* =========================================================
+   رکورد
+========================================================= */
+
+function getHighScore(){
+
+  return Number(
+    localStorage.getItem(
+      "breakoutHigh"
+    ) || 0
+  );
+
+}
+
+
+/* =========================================================
+   ارسال پیام WebRTC
+========================================================= */
+
+function sendNet(
+  message
+){
+
+  if(
+    !link ||
+    !networkReady
+  ){
+
+    return false;
+
+  }
+
+
+  try{
+
+    return link.send(
+      message
+    );
+
+  }catch{
+
+    return false;
+
+  }
+
+}
+
+
+/* =========================================================
+   نتیجه بازی به دستگاه مقابل
+========================================================= */
+
+function sendMyResult(
+  won
+){
+
+  if(
+    !link ||
+    !networkReady
+  ){
+
+    return;
+
+  }
+
+
+  sendNet({
+
+    type:
+      "reaction_result",
+
+    game:
+      GAME_ID,
+
+    name:
+      myName,
+
+    score:
+      score,
+
+    won:
+      !!won
+
+  });
+
+}
+
+
+/* =========================================================
+   شروع بازی همزمان
+========================================================= */
+
+function sendGameStart(){
+
+  if(
+    !link ||
+    !networkReady
+  )
+    return;
+
+
+  sendNet({
+
+    type:
+      "reaction_start",
+
+    game:
+      GAME_ID,
+
+    host:
+      myName
+
+  });
+
+}
+
+
+/* =========================================================
+   پیام‌های شبکه
+========================================================= */
+
+function handleNetworkMessage(
+  message
+){
+
+  if(
+    !message ||
+    typeof message !== "object"
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    message.type ===
+    "reaction_hello"
+  ){
+
+    if(
+      message.name
+    ){
+
+      opponentName =
+        String(
+          message.name
+        ).slice(
+          0,
+          20
+        );
+
+    }
+
+
+    sendNet({
+
+      type:
+        "reaction_hello_ack",
+
+      name:
+        myName
+
+    });
+
+
+    return;
+
+  }
+
+
+  if(
+    message.type ===
+    "reaction_hello_ack"
+  ){
+
+    if(
+      message.name
+    ){
+
+      opponentName =
+        String(
+          message.name
+        ).slice(
+          0,
+          20
+        );
+
+    }
+
+
+    if(
+      isHost &&
+      networkReady
+    ){
+
+      networkStatus.textContent =
+        "✅ هر دو بازیکن متصل شدند";
+
+
+      waitingText.textContent =
+        "میزبان می‌تواند بازی را شروع کند.";
+
+    }
+
+
+    return;
+
+  }
+
+
+  if(
+    message.type ===
+    "reaction_start"
+  ){
+
+    if(
+      !running &&
+      !roundFinished
+    ){
+
+      networkStatus.textContent =
+        "🎮 بازی شروع شد";
+
+
+      networkPanel.style.display =
+        "none";
+
+
+      startGame();
+
+    }
+
+
+    return;
+
+  }
+
+
+  if(
+    message.type ===
+    "reaction_result"
+  ){
+
+    opponentResult = {
+
+      name:
+        String(
+          message.name ||
+          opponentName
+        ).slice(
+          0,
+          20
+        ),
+
+      score:
+        Number(
+          message.score ||
+          0
+        ),
+
+      won:
+        !!message.won
+
+    };
+
+
+    opponentName =
+      opponentResult.name;
+
+
+    if(
+      roundFinished
+    ){
+
+      showNetworkResults();
+
+    }
+
+
+    return;
+
+  }
+
+
+  if(
+    message.type ===
+    "reaction_ping"
+  ){
+
+    sendNet({
+
+      type:
+        "reaction_pong"
+
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   ثبت نتیجه
+========================================================= */
+
+async function submitGameResult(
+  localWon
+){
+
+  if(
+    resultSubmitted
+  )
+    return;
+
+
+  resultSubmitted =
+    true;
+
+
+  myResult = {
+
+    name:
+      myName,
+
+    score:
+      score,
+
+    won:
+      !!localWon
+
+  };
+
+
+  /*
+   * تک‌نفره:
+   * فقط نتیجه محلی نمایش داده می‌شود.
+   */
+
+  if(
+    isSolo
+  ){
+
+    showSoloResult();
+
+    return;
+
+  }
+
+
+  /*
+   * چندنفره:
+   * نتیجه را برای گوشی دیگر بفرست.
+   */
+
+  sendMyResult(
+    localWon
+  );
+
+
+  waitingForOpponent =
+    true;
+
+
+  overlayText.textContent =
+    "نتیجه ثبت شد؛ منتظر بازیکن مقابل هستیم…";
+
+
+  mainBtn.classList.add(
+    "hidden"
+  );
+
+
+  /*
+   * اگر نتیجه حریف قبلاً رسیده باشد.
+   */
+
+  if(
+    opponentResult
+  ){
+
+    showNetworkResults();
+
+  }
+
+}
+
+
+/* =========================================================
+   نتیجه تک‌نفره
+========================================================= */
+
+function showSoloResult(){
+
+  /*
+   * از سیستم سکه یا پروفایل استفاده نمی‌کنیم.
+   */
+
+  overlayTitle.textContent =
+    score >= 100
+      ? "🏆 عالی بود!"
+      : "🎮 بازی تمام شد";
+
+
+  overlayText.innerHTML =
+    `
+      <strong>
+        امتیاز نهایی: ${score}
+      </strong>
+      <br>
+      رکورد: ${getHighScore()}
+    `;
+
+
+  mainBtn.textContent =
+    "بازی دوباره";
+
+
+  mainBtn.classList.remove(
+    "hidden"
+  );
+
+
+  restartBtn.classList.add(
+    "hidden"
+  );
+
+}
+
+
+/* =========================================================
+   نتیجه چندنفره
+========================================================= */
+
+function showNetworkResults(){
+
+  if(
+    scoreboardShown
+  )
+    return;
+
+
+  if(
+    !myResult ||
+    !opponentResult
+  )
+    return;
+
+
+  scoreboardShown =
+    true;
+
+
+  const rows = [
+
+    {
+
+      name:
+        myResult.name,
+
+      score:
+        myResult.score,
+
+      me:true
+
+    },
+
+    {
+
+      name:
+        opponentResult.name,
+
+      score:
+        opponentResult.score,
+
+      me:false
+
+    }
+
+  ];
+
+
+  rows.sort(
+    (a,b) =>
+      b.score -
+      a.score
+  );
+
+
+  resultsList.innerHTML =
+    rows.map(
+      (r,index) => {
+
+        const medal =
+          index === 0
+            ? "🥇"
+            : "🥈";
+
+
+        return `
+
+          <div
+            class="resultRow ${
+              r.me
+                ? "me"
+                : ""
+            }"
+          >
+
+            <div
+              class="resultName"
+            >
+
+              ${medal}
+
+              ${
+                escapeHtml(
+                  r.name
+                )
+              }
+
+              ${
+                r.me
+                  ? " (شما)"
+                  : ""
+              }
+
+            </div>
+
+            <div
+              class="resultScore"
+            >
+              ${r.score}
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    ).join("");
+
+
+  roomResults.style.display =
+    "flex";
+
+
+  /*
+   * اگر مساوی باشند
+   */
+
+  if(
+    myResult.score ===
+    opponentResult.score
+  ){
+
+    const title =
+      roomResults
+        .querySelector(
+          ".resultsBox h2"
+        );
+
+
+    if(title){
+
+      title.textContent =
+        "🤝 مساوی!";
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   ادامه
+========================================================= */
+
+resultClose.addEventListener(
+  "click",
+  () => {
+
+    roomResults.style.display =
+      "none";
+
+    scoreboardShown =
+      false;
+
+  }
+);
+
+
+/* =========================================================
+   شروع مرحله بعد
+========================================================= */
+
+function continueLevel(){
+
+  stopLoop();
+
+
+  roundFinished =
+    false;
+
+
+  running =
+    true;
+
+
+  overlay.style.display =
+    "none";
+
+
+  overlay.classList.add(
+    "hidden"
+  );
+
+
+  startLevel();
+
+
+  draw();
+
+
+  scheduleUpdate();
+
+}
+
+
+/* =========================================================
+   شروع بازی
+========================================================= */
+
+function startGame(){
+
+  stopLoop();
+
+
+  currentLevel =
+    0;
+
+
+  score =
+    0;
+
+
+  lives =
+    3;
+
+
+  baseSpeed =
+    levels[0].speed;
+
+
+  running =
+    true;
+
+
+  roundFinished =
+    false;
+
+
+  resultSubmitted =
+    false;
+
+
+  scoreboardShown =
+    false;
+
+
+  waitingForOpponent =
+    false;
+
+
+  myResult =
+    null;
+
+
+  opponentResult =
+    null;
+
+
+  particles =
+    [];
+
+
+  trail =
+    [];
+
+
+  scoreEl.textContent =
+    "0";
+
+
+  highScoreEl.textContent =
+    getHighScore();
+
+
+  updateLives();
+
+
+  overlay.style.display =
+    "none";
+
+
+  overlay.classList.add(
+    "hidden"
+  );
+
+
+  roomResults.style.display =
+    "none";
+
+
+  startLevel();
+
+
+  draw();
+
+
+  scheduleUpdate();
+
+}
+
+
+/* =========================================================
+   حرکت پدل
+========================================================= */
+
+function movePaddle(
+  x
+){
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+
+  const scaleX =
+    W /
+    rect.width;
+
+
+  const canvasX =
+    (
+      x -
+      rect.left
+    ) *
+    scaleX;
+
+
+  paddle.x =
+    canvasX -
+    paddle.width /
+    2;
+
+
+  paddle.x =
+    Math.max(
+      0,
+      Math.min(
+        W -
+        paddle.width,
+        paddle.x
+      )
+    );
+
+}
+
+
+/* =========================================================
+   موس
+========================================================= */
+
+canvas.addEventListener(
+  "mousemove",
+  e => {
+
+    if(!running)
+      return;
+
+
+    movePaddle(
+      e.clientX
+    );
+
+  }
+);
+
+
+/* =========================================================
+   لمس
+========================================================= */
+
+canvas.addEventListener(
+  "touchstart",
+  e => {
+
+    if(!running)
+      return;
+
+
+    const touch =
+      e.touches[0];
+
+
+    if(touch){
+
+      movePaddle(
+        touch.clientX
+      );
+
+    }
+
+  },
+  {
+    passive:false
+  }
+);
+
+
+canvas.addEventListener(
+  "touchmove",
+  e => {
+
+    if(!running)
+      return;
+
+
+    e.preventDefault();
+
+
+    const touch =
+      e.touches[0];
+
+
+    if(touch){
+
+      movePaddle(
+        touch.clientX
+      );
+
+    }
+
+  },
+  {
+    passive:false
+  }
+);
+
+
+/* =========================================================
+   کیبورد
+========================================================= */
+
+window.addEventListener(
+  "keydown",
+  e => {
+
+    if(
+      e.key ===
+      "ArrowLeft" ||
+      e.key.toLowerCase() ===
+      "a"
+    ){
+
+      keys.left =
+        true;
+
+    }
+
+
+    if(
+      e.key ===
+      "ArrowRight" ||
+      e.key.toLowerCase() ===
+      "d"
+    ){
+
+      keys.right =
+        true;
+
+    }
+
+  }
+);
+
+
+window.addEventListener(
+  "keyup",
+  e => {
+
+    if(
+      e.key ===
+      "ArrowLeft" ||
+      e.key.toLowerCase() ===
+      "a"
+    ){
+
+      keys.left =
+        false;
+
+    }
+
+
+    if(
+      e.key ===
+      "ArrowRight" ||
+      e.key.toLowerCase() ===
+      "d"
+    ){
+
+      keys.right =
+        false;
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   دکمه اصلی
+========================================================= */
+
+mainBtn.addEventListener(
+  "click",
+  () => {
+
+    sound(
+      650,
+      .06
+    );
+
+
+    /*
+     * اگر بازی تمام شده:
+     */
+
+    if(
+      roundFinished
+    ){
+
+      if(
+        isSolo
+      ){
+
+        startGame();
+
+      }else{
+
+        if(
+          opponentResult
+        ){
+
+          showNetworkResults();
+
+        }
+
+      }
+
+      return;
+
+    }
+
+
+    /*
+     * مرحله بعد
+     */
+
+    if(
+      currentLevel > 0
+    ){
+
+      /*
+       * در حالت شبکه،
+       * مهمان منتظر فرمان میزبان است.
+       */
+
+      if(
+        !isSolo &&
+        isGuest
+      ){
+
+        return;
+
+      }
+
+
+      continueLevel();
+
+
+      return;
+
+    }
+
+
+    /*
+     * شروع بازی اول
+     */
+
+    if(
+      isSolo
+    ){
+
+      startGame();
+
+      return;
+
+    }
+
+
+    /*
+     * حالت میزبان:
+     * شروع بازی برای هر دو گوشی.
+     */
+
+    if(
+      isHost &&
+      networkReady
+    ){
+
+      sendGameStart();
+
+      startGame();
+
+      return;
+
+    }
+
+
+    /*
+     * مهمان نباید خودش شروع کند.
+     */
+
+    if(
+      isGuest
+    ){
+
+      overlayText.textContent =
+        "منتظر میزبان بمان…";
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   دکمه شروع دوباره
+========================================================= */
+
+restartBtn.addEventListener(
+  "click",
+  () => {
+
+    sound(
+      500,
+      .05
+    );
+
+
+    if(
+      isSolo
+    ){
+
+      startGame();
+
+      return;
+
+    }
+
+
+    /*
+     * در شبکه،
+     * میزبان دور بعد را شروع می‌کند.
+     */
+
+    if(
+      isHost &&
+      networkReady
+    ){
+
+      scoreboardShown =
+        false;
+
+      roomFinishedReset();
+
+      sendNet({
+
+        type:
+          "reaction_restart"
+
+      });
+
+
+      startGame();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   پیام restart شبکه
+========================================================= */
+
+function roomFinishedReset(){
+
+  roomResults.style.display =
+    "none";
+
+
+  resultSubmitted =
+    false;
+
+
+  scoreboardShown =
+    false;
+
+
+  myResult =
+    null;
+
+
+  opponentResult =
+    null;
+
+
+  roundFinished =
+    false;
+
+}
+
+
+/* =========================================================
+   نام
+========================================================= */
+
+networkName.value =
+  myName;
+
+
+networkName.addEventListener(
+  "input",
+  () => {
+
+    const name =
+      networkName.value
+        .trim()
+        .slice(
+          0,
+          20
+        );
+
+
+    if(name){
+
+      myName =
+        name;
+
+      saveName(
+        myName
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   کپی
+========================================================= */
+
+async function copyText(
+  text
+){
+
+  try{
+
+    await navigator.clipboard.writeText(
+      text
+    );
+
+    return true;
+
+  }catch{
+
+    try{
+
+      const ta =
+        document.createElement(
+          "textarea"
+        );
+
+
+      ta.value =
+        text;
+
+
+      document.body.appendChild(
+        ta
+      );
+
+
+      ta.select();
+
+
+      document.execCommand(
+        "copy"
+      );
+
+
+      ta.remove();
+
+
+      return true;
+
+    }catch{
+
+      return false;
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   Host
+========================================================= */
+
+async function setupHost(){
+
+  networkPanel.style.display =
+    "flex";
+
+
+  hostArea.classList.remove(
+    "hidden"
+  );
+
+
+  guestArea.classList.add(
+    "hidden"
+  );
+
+
+  networkTitle.textContent =
+    "📡 میزبان بازی";
+
+
+  networkDescription.textContent =
+    "کد دعوت را برای گوشی دوم بفرست.";
+
+
+  networkStatus.textContent =
+    "در حال ساخت کد دعوت…";
+
+
+  try{
+
+    const result =
+      await hostInvite();
+
+
+    link =
+      result.link;
+
+
+    offerCode.value =
+      result.code;
+
+
+    link.onopen =
+      () => {
+
+        networkReady =
+          true;
+
+
+        networkStatus.textContent =
+          "✅ اتصال برقرار شد";
+
+
+        waitingText.textContent =
+          "هر دو گوشی آماده‌اند. شروع بازی را بزن.";
+
+        sendNet({
+
+          type:
+            "reaction_hello",
+
+          name:
+            myName
+
+        });
+
+      };
+
+
+    link.onmessage =
+      handleNetworkMessage;
+
+
+    link.onclose =
+      () => {
+
+        networkReady =
+          false;
+
+
+        networkStatus.textContent =
+          "❌ اتصال قطع شد";
+
+      };
+
+
+    networkStatus.textContent =
+      "کد ساخته شد؛ منتظر گوشی دوم…";
+
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+
+    networkStatus.textContent =
+      "❌ ساخت اتصال ناموفق بود";
+
+  }
+
+}
+
+
+/* =========================================================
+   Guest
+========================================================= */
+
+async function setupGuest(){
+
+  networkPanel.style.display =
+    "flex";
+
+
+  hostArea.classList.add(
+    "hidden"
+  );
+
+
+  guestArea.classList.remove(
+    "hidden"
+  );
+
+
+  networkTitle.textContent =
+    "📡 ورود به بازی";
+
+
+  networkDescription.textContent =
+    "کد دعوت میزبان را وارد کن.";
+
+
+  networkStatus.textContent =
+    "منتظر کد دعوت…";
+
+}
+
+
+/* =========================================================
+   ساخت جواب مهمان
+========================================================= */
+
+makeAnswer.addEventListener(
+  "click",
+  async () => {
+
+    const code =
+      offerInput.value.trim();
+
+
+    if(!code){
+
+      networkStatus.textContent =
+        "⚠️ کد دعوت را وارد کن.";
+
+      return;
+
+    }
+
+
+    networkStatus.textContent =
+      "در حال اتصال…";
+
+
+    try{
+
+      const result =
+        await guestJoin(
+          code
+        );
+
+
+      link =
+        result.link;
+
+
+      answerCode.value =
+        result.code;
+
+
+      answerArea.classList.remove(
+        "hidden"
+      );
+
+
+      link.onopen =
+        () => {
+
+          networkReady =
+            true;
+
+
+          networkStatus.textContent =
+            "✅ اتصال برقرار شد";
+
+
+          waitingText.textContent =
+            "منتظر شروع بازی توسط میزبان…";
+
+
+          sendNet({
+
+            type:
+              "reaction_hello",
+
+            name:
+              myName
+
+          });
+
+        };
+
+
+      link.onmessage =
+        handleNetworkMessage;
+
+
+      link.onclose =
+        () => {
+
+          networkReady =
+            false;
+
+
+          networkStatus.textContent =
+            "❌ اتصال قطع شد";
+
+        };
+
+
+      networkStatus.textContent =
+        "کد جواب ساخته شد؛ برای میزبان بفرست.";
+
+    }catch(error){
+
+      console.error(
+        error
+      );
+
+
+      networkStatus.textContent =
+        "❌ کد دعوت معتبر نیست یا اتصال نشد.";
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   قبول جواب میزبان
+========================================================= */
+
+acceptAnswer.addEventListener(
+  "click",
+  async () => {
+
+    const code =
+      answerInput.value.trim();
+
+
+    if(!link){
+
+      networkStatus.textContent =
+        "❌ اتصال میزبان ساخته نشده.";
+
+      return;
+
+    }
+
+
+    if(!code){
+
+      networkStatus.textContent =
+        "⚠️ کد جواب را وارد کن.";
+
+      return;
+
+    }
+
+
+    networkStatus.textContent =
+      "در حال تکمیل اتصال…";
+
+
+    try{
+
+      await hostAccept(
+        link,
+        code
+      );
+
+
+      networkStatus.textContent =
+        "در حال انتظار برای اتصال…";
+
+    }catch(error){
+
+      console.error(
+        error
+      );
+
+
+      networkStatus.textContent =
+        "❌ کد جواب معتبر نیست.";
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   کپی offer
+========================================================= */
+
+copyOffer.addEventListener(
+  "click",
+  async () => {
+
+    const ok =
+      await copyText(
+        offerCode.value
+      );
+
+
+    networkStatus.textContent =
+      ok
+        ? "✅ کد دعوت کپی شد."
+        : "کپی خودکار انجام نشد.";
+
+  }
+);
+
+
+/* =========================================================
+   کپی answer
+========================================================= */
+
+copyAnswer.addEventListener(
+  "click",
+  async () => {
+
+    const ok =
+      await copyText(
+        answerCode.value
+      );
+
+
+    networkStatus.textContent =
+      ok
+        ? "✅ کد جواب کپی شد."
+        : "کپی خودکار انجام نشد.";
+
+  }
+);
+
+
+/* =========================================================
+   لغو اتصال
+========================================================= */
+
+networkClose.addEventListener(
+  "click",
+  () => {
+
+    try{
+
+      if(link){
+
+        link.close();
+
+      }
+
+    }catch{}
+
+
+    networkPanel.style.display =
+      "none";
+
+
+    networkReady =
+      isSolo;
+
+
+    /*
+     * اگر کاربر وارد حالت host/guest شده
+     * ولی لغو کرده، بازی را تک‌نفره
+     * خودکار شروع نمی‌کنیم.
+     */
+
+  }
+);
+
+
+/* =========================================================
+   Escape
+========================================================= */
+
+window.addEventListener(
+  "keydown",
+  e => {
+
+    if(
+      e.key ===
+      "Escape"
+    ){
+
+      networkPanel.style.display =
+        "none";
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   نتیجه شبکه
+========================================================= */
+
+function setupNetwork(){
+
+  if(isSolo){
+
+    return;
+
+  }
+
+
+  if(isHost){
+
+    setupHost();
+
+    return;
+
+  }
+
+
+  if(isGuest){
+
+    setupGuest();
+
+    return;
+
+  }
+
+}
+
+
+/* =========================================================
+   نتیجه اولیه
+========================================================= */
+
+highScoreEl.textContent =
+  getHighScore();
+
+
+updateLives();
+
+
+startLevel();
+
+
+draw();
+
+
+/* =========================================================
+   راه‌اندازی شبکه
+========================================================= */
+
+setupNetwork();
+
+
+/* =========================================================
+   HTML escape
+========================================================= */
+
+function escapeHtml(
+  value
+){
+
+  return String(
+    value
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+</script>
+
+</body>
+
+  </html>
