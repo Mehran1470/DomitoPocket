@@ -8,109 +8,378 @@
 <link rel="icon" type="image/png" href="./logo.png">
 <meta name="theme-color" content="#0f111a">
 </head>
+
 <body>
+
 <div class="wrap">
 
   <div class="brand">
-    <img id="domitoLogo" src="./logo.png" alt="دومیتو"
+    <img
+      id="domitoLogo"
+      src="./logo.png"
+      alt="دومیتو"
       style="width:100px;height:100px;object-fit:contain;display:block;margin:0 auto 10px;border-radius:24px;"
-      onerror="this.outerHTML='<div class=&quot;brand-mark&quot;>د</div>'">
+      onerror="this.outerHTML='<div class=&quot;brand-mark&quot;>د</div>'"
+    >
+
     <h1>دومیتو جیبی</h1>
-    <p>مینی‌گیم‌های آفلاین، چندنفره با Wi-Fi یا هات‌اسپات</p>
+
+    <p>
+      مینی‌گیم‌های آفلاین، چندنفره با Wi-Fi یا هات‌اسپات
+    </p>
   </div>
+
 
   <!-- ورود با نام -->
   <div class="card" id="nameCard">
+
     <h2>اسمت چیه؟</h2>
-    <input type="text" id="nameInput" placeholder="نام بازیکن" maxlength="20" autocomplete="off">
-    <button id="nameBtn" class="btn-full">ورود</button>
+
+    <input
+      type="text"
+      id="nameInput"
+      placeholder="نام بازیکن"
+      maxlength="20"
+      autocomplete="off"
+    >
+
+    <button id="nameBtn" class="btn-full">
+      ورود
+    </button>
+
     <p class="status-line" id="nameStatus"></p>
+
   </div>
+
 
   <!-- خانه -->
   <div id="homeContent" style="display:none">
 
     <div class="top-wallet-bar">
+
       <span class="chip me" id="chipName"></span>
-      <button id="changeName" class="btn-ghost" style="padding:8px 14px;font-size:12.5px;">تغییر نام</button>
+
+      <button
+        id="changeName"
+        class="btn-ghost"
+        style="padding:8px 14px;font-size:12.5px;"
+      >
+        تغییر نام
+      </button>
+
     </div>
+
 
     <div class="hero">
-      <div class="hero-emojis">🎮🕹️👾</div>
-      <h1>بازی کن. رقابت کن. لذت ببر.</h1>
-      <p>خوش اومدی <span id="helloName" style="color:var(--gold);font-weight:700;"></span></p>
-      <div class="hero-btns">
-        <button id="createRoomBtn">➕ ساخت اتاق جدید</button>
-        <button id="joinRoomBtn" class="btn-ghost">🔑 ورود با کد اتاق</button>
+
+      <div class="hero-emojis">
+        🎮🕹️👾
       </div>
+
+      <h1>
+        بازی کن. رقابت کن. لذت ببر.
+      </h1>
+
+      <p>
+        خوش اومدی
+        <span
+          id="helloName"
+          style="color:var(--gold);font-weight:700;"
+        ></span>
+      </p>
+
+      <div class="hero-btns">
+
+        <button id="createRoomBtn">
+          ➕ ساخت اتاق جدید
+        </button>
+
+        <button id="joinRoomBtn" class="btn-ghost">
+          🔑 ورود با کد اتاق
+        </button>
+
+      </div>
+
     </div>
 
-    <div class="section-title"><h2>🎮 بازی تک‌نفره — همین الان بازی کن</h2></div>
-    <div class="game-scroll" id="gameScroll"></div>
-    <p class="status-line" id="homeStatus"></p>
+
+    <div class="section-title">
+      <h2>
+        🎮 بازی تک‌نفره — همین الان بازی کن
+      </h2>
+    </div>
+
+
+    <div
+      class="game-scroll"
+      id="gameScroll"
+    ></div>
+
+
+    <p
+      class="status-line"
+      id="homeStatus"
+    ></p>
+
   </div>
 
 </div>
 
+
 <script type="module">
-import { GAMES, getSavedName, saveName, clearName } from './js/store.js';
+
+import {
+  GAMES,
+  getSavedName,
+  saveName,
+  clearName
+} from './js/store.js';
+
+
+/* =========================
+   ابزار انتخاب المنت
+========================= */
 
 const $ = id => document.getElementById(id);
 
+
+/* =========================
+   نمایش صفحه اصلی
+========================= */
+
 function showHome() {
+
   const name = getSavedName();
+
   $('nameCard').style.display = 'none';
+
   $('homeContent').style.display = 'block';
+
   $('helloName').textContent = name;
+
   $('chipName').textContent = name;
+
   renderGames();
 }
 
+
+/* =========================
+   بازی‌های آماده
+========================= */
+
+/*
+  فعلاً فقط Snake آماده است.
+  بعداً که بازی‌های دیگر کامل شدند،
+  فقط ID آن‌ها را به این لیست اضافه می‌کنیم.
+*/
+
+const readyGames = new Set([
+  'snake'
+]);
+
+
+/* =========================
+   ساخت کارت بازی‌ها
+========================= */
+
 function renderGames() {
+
   const box = $('gameScroll');
+
   box.innerHTML = '';
+
   GAMES.forEach(g => {
+
+    const ready = readyGames.has(g.id);
+
     const card = document.createElement('div');
+
     card.className = 'game-card';
+
+
     card.innerHTML = `
-      <div class="game-thumb" style="background:linear-gradient(160deg,rgba(79,124,255,.3),rgba(155,92,255,.2));">
+
+      <div
+        class="game-thumb"
+        style="
+          background:
+          linear-gradient(
+            160deg,
+            rgba(79,124,255,.3),
+            rgba(155,92,255,.2)
+          );
+        "
+      >
+
         ${g.icon}
-        <span class="solo-badge">${g.ready ? 'تک‌نفره' : 'به‌زودی'}</span>
+
+        <span class="solo-badge">
+          ${ready ? 'تک‌نفره' : 'به‌زودی'}
+        </span>
+
       </div>
+
+
       <div class="game-body">
-        <div class="name">${g.name}</div>
-        <div class="meta">${g.desc}</div>
-      </div>`;
+
+        <div class="name">
+          ${g.name}
+        </div>
+
+        <div class="meta">
+          ${g.desc}
+        </div>
+
+      </div>
+
+    `;
+
+
+    /* =========================
+       کلیک روی بازی
+    ========================= */
+
     card.addEventListener('click', () => {
-      if (!g.ready) {
-        $('homeStatus').textContent = 'این بازی هنوز اضافه نشده.';
+
+      if (!ready) {
+
+        $('homeStatus').textContent =
+          'این بازی هنوز اضافه نشده.';
+
         return;
       }
-      location.href = `games/${g.id}.html?solo=1`;
+
+
+      /* اجرای بازی */
+
+      location.href =
+        `games/${g.id}.html?solo=1`;
+
     });
+
+
     box.appendChild(card);
+
   });
+
 }
 
+
+/* =========================
+   ورود با نام
+========================= */
+
 $('nameBtn').addEventListener('click', () => {
-  const v = $('nameInput').value.trim();
-  if (v.length < 2) { $('nameStatus').textContent = 'اسم باید حداقل ۲ حرف باشه'; return; }
+
+  const v =
+    $('nameInput').value.trim();
+
+
+  if (v.length < 2) {
+
+    $('nameStatus').textContent =
+      'اسم باید حداقل ۲ حرف باشه';
+
+    return;
+  }
+
+
   saveName(v);
+
   showHome();
-});
-$('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') $('nameBtn').click(); });
-$('changeName').addEventListener('click', () => {
-  clearName();
-  $('homeContent').style.display = 'none';
-  $('nameCard').style.display = 'block';
-  $('nameInput').value = '';
+
 });
 
-// فعلاً به صفحهٔ تست اتصال می‌روند؛ در فاز ۳ جای آن لابی می‌آید
-$('createRoomBtn').addEventListener('click', () => { location.href = 'net-test.html#host'; });
-$('joinRoomBtn').addEventListener('click', () => { location.href = 'net-test.html#guest'; });
 
-if (getSavedName()) showHome();
+/* =========================
+   Enter برای ورود
+========================= */
+
+$('nameInput').addEventListener(
+  'keydown',
+  e => {
+
+    if (e.key === 'Enter') {
+
+      $('nameBtn').click();
+
+    }
+
+  }
+);
+
+
+/* =========================
+   تغییر نام
+========================= */
+
+$('changeName').addEventListener(
+  'click',
+  () => {
+
+    clearName();
+
+    $('homeContent').style.display =
+      'none';
+
+    $('nameCard').style.display =
+      'block';
+
+    $('nameInput').value =
+      '';
+
+    $('nameInput').focus();
+
+  }
+);
+
+
+/* =========================
+   ساخت اتاق
+========================= */
+
+/*
+  فعلاً به صفحه تست اتصال می‌رود.
+  در فاز بعدی لابی اصلی اینجا قرار می‌گیرد.
+*/
+
+$('createRoomBtn').addEventListener(
+  'click',
+  () => {
+
+    location.href =
+      'net-test.html#host';
+
+  }
+);
+
+
+/* =========================
+   ورود به اتاق
+========================= */
+
+$('joinRoomBtn').addEventListener(
+  'click',
+  () => {
+
+    location.href =
+      'net-test.html#guest';
+
+  }
+);
+
+
+/* =========================
+   ورود خودکار
+========================= */
+
+if (getSavedName()) {
+
+  showHome();
+
+}
+
 </script>
+
 </body>
 </html>
